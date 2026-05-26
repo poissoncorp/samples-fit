@@ -39,9 +39,9 @@ Prerequisites:
 1. [Node.js 22.x](https://nodejs.org/en/download)
 1. [Docker](https://www.docker.com/) (Aspire orchestrates RavenDB, MinIO, RabbitMQ, and the backend image)
 
-Optional environment variables:
+Optional configuration:
 
-- `OPENAI_API_KEY` — enables the AI chat coach, GenAI daily goals, and per-workout coach notes. Without it the AI features degrade gracefully (the chat returns a "not configured" frame; the goals task runs but produces no output).
+- **OpenAI key** — enables the AI chat coach, GenAI daily goals, and per-workout coach notes. On first run Aspire's dashboard will prompt for it (stored as a user secret thereafter). You can also pre-set the value as the `OPENAI_API_KEY` env var or via `Parameters__openai-api-key`. Without a key the AI features degrade gracefully (chat returns a "not configured" frame; the goals task runs but produces no output).
 - `RAVEN_FIT_RAVEN_LICENSE` — RavenDB enterprise license. Community mode works too.
 
 First-time setup — install frontend dependencies once so Aspire's `AddNpmApp` can launch the dev server:

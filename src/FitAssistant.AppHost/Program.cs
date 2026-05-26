@@ -2,14 +2,19 @@ using CommunityToolkit.Aspire.Hosting.RavenDB;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var openAiApiKey = builder.AddParameter("openAiApiKey",
-    builder.Configuration["OPENAI_API_KEY"] ?? throw new InvalidOperationException("OPENAI_API_KEY is required."),
-    secret: true);
+// OpenAI key — Aspire resolves in this order: explicit `OPENAI_API_KEY` env var,
+// `Parameters:openai-api-key` (config / user secrets / CI repo secret as
+// `Parameters__openai-api-key`), or interactive dashboard prompt on first run.
+// Backend tolerates an empty / unset key (Phase B features no-op gracefully).
+var openAiKeyFromEnv = builder.Configuration["OPENAI_API_KEY"];
+var openAiApiKey = string.IsNullOrEmpty(openAiKeyFromEnv)
+    ? builder.AddParameter("openai-api-key", secret: true)
+    : builder.AddParameter("openai-api-key", openAiKeyFromEnv, secret: true);
 
 var ravenLicense = builder.Configuration["RAVEN_FIT_RAVEN_LICENSE"];
 
-// MinIO — credentials are fixed demo values (see CLAUDE.md). Parameter
-// wrapping is API ceremony, not a knob.
+// MinIO — credentials are fixed demo values. Parameter wrapping is API
+// ceremony, not a knob.
 var minio = builder.AddMinioContainer("minio",
     rootUser:     builder.AddParameter("minio-user", "fitadmin"),
     rootPassword: builder.AddParameter("minio-pwd",  "fitadmin123", secret: true),
