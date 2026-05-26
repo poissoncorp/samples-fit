@@ -1,0 +1,155 @@
+.trophy-shelf {
+  position: relative;
+  display: inline-flex;
+}
+
+.trophy-shelf__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--bg-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 100ms ease, border-color 100ms ease;
+}
+.trophy-shelf__trigger:hover {
+  background: color-mix(in oklab, var(--bg-soft) 70%, var(--bg-card) 30%);
+  border-color: color-mix(in oklab, var(--border) 60%, var(--text-mute) 40%);
+}
+.trophy-shelf__trigger-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+.trophy-shelf__trigger-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent, #a564f9) 18%, transparent);
+  color: var(--accent, #a564f9);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.trophy-shelf__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  /* Anchor to the LEFT edge of the trigger and grow to the right. The
+     panel head sits in the upper-right of the time-series card; previous
+     `left: 0` had the popover open under the Range chips and bleed into
+     the Coach panel. Anchoring left keeps it inside the time-series card. */
+  left: 0;
+  right: auto;
+  width: min(340px, calc(100vw - 32px));
+  max-height: min(360px, 50vh);
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.32);
+  /* Higher than the panel-head FeatureBadge popovers (z-index 20-ish) and
+     above the Coach card's internal stacking. */
+  z-index: 200;
+  padding: 12px;
+  animation: trophy-shelf-pop 100ms ease-out;
+}
+
+/* If the trigger is in the right half of the viewport, flip the popover to
+   anchor to the right edge instead so it doesn't run off-screen. The
+   wrapper class is added by the component when there isn't room to the
+   right. */
+.trophy-shelf--anchor-right .trophy-shelf__panel {
+  left: auto;
+  right: 0;
+}
+
+@keyframes trophy-shelf-pop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.trophy-shelf__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.trophy-shelf__panel-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-mute);
+  font-weight: 700;
+}
+
+.trophy-shelf__empty {
+  font-size: 13px;
+  color: var(--text-mute);
+  padding: 8px 4px 4px;
+  line-height: 1.4;
+}
+
+.trophy-shelf__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trophy-shelf__item {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 100ms ease;
+}
+.trophy-shelf__item:hover {
+  background: var(--bg-soft);
+}
+.trophy-shelf__item-icon {
+  font-size: 22px;
+  line-height: 1;
+  width: 28px;
+  text-align: center;
+}
+.trophy-shelf__item-text {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.trophy-shelf__item-title {
+  font-weight: 600;
+  font-size: 13px;
+}
+.trophy-shelf__item-detail {
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.trophy-shelf__item-cta {
+  color: var(--text-mute);
+  font-size: 16px;
+}
+.trophy-shelf__item:hover .trophy-shelf__item-cta {
+  color: var(--text);
+}

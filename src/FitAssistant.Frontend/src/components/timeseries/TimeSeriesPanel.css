@@ -1,0 +1,485 @@
+.ts-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  flex: 1;
+  /* In non-bounded mode (page-scroll), pin panel to a sensible height
+     so the Activities list ALWAYS scrolls internally — switching to
+     Activities never grows the page. */
+  height: 540px;
+  max-height: 75vh;
+  min-height: 480px;
+}
+
+/* Bounded viewport mode — let the split row drive panel height. */
+@media (min-width: 1080px) and (min-height: 760px) {
+  .ts-panel {
+    height: auto;
+    min-height: 0;
+    max-height: 100%;
+  }
+}
+
+.ts-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.ts-panel__head-r {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.ts-panel__tabs {
+  display: inline-flex;
+  gap: var(--s-1);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 4px;
+}
+
+.ts-panel__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mute);
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+.ts-panel__tab:hover {
+  color: var(--text);
+}
+
+.ts-panel__tab.is-active {
+  color: var(--text);
+  background: var(--bg-card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.ts-panel__tab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-mute);
+  transition: background var(--motion-fast) var(--ease);
+}
+
+.ts-panel__tab--red.is-active .ts-panel__tab-dot {
+  background: var(--ring-red);
+}
+.ts-panel__tab--blue.is-active .ts-panel__tab-dot {
+  background: var(--ring-blue);
+}
+.ts-panel__tab--purple.is-active .ts-panel__tab-dot {
+  background: var(--ring-purple);
+}
+
+.ts-panel__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Tab inner layout — shared */
+.ts-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  flex: 1;
+  /* Critical: allow the tab to shrink below its children's intrinsic size,
+     so .ts-tab__list can scroll internally instead of pushing the page tall. */
+  min-height: 0;
+}
+
+.ts-tab__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.ts-tab__cta {
+  display: inline-flex;
+  gap: var(--s-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ts-tab__stats {
+  display: inline-flex;
+  gap: var(--s-5);
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.ts-tab__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ts-tab__stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: var(--text-mute);
+}
+
+.ts-tab__stat-value {
+  font-size: var(--t-h3-size);
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.ts-tab__stat-unit {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mute);
+  margin-left: 2px;
+}
+
+.ts-tab__stat.is-muted .ts-tab__stat-value {
+  color: var(--text-mute);
+  font-weight: 600;
+}
+
+.ts-tab__chart {
+  width: 100%;
+  min-height: 240px;
+}
+
+.ts-tab__empty {
+  text-align: center;
+  padding: var(--s-7) var(--s-5);
+  color: var(--text-mute);
+  font-size: var(--t-caption-size);
+  background: var(--bg-sunken);
+  border-radius: var(--r-tile);
+  border: 1px dashed var(--border);
+}
+
+.ts-tab__retry {
+  color: var(--ring-blue);
+  font-weight: 600;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.ts-tab__caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: 12px;
+  color: var(--text-mute);
+}
+
+.ts-tab__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ts-tab__legend span {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.ts-tab__caption-note {
+  flex: 1;
+  text-align: right;
+  min-width: 0;
+}
+
+.ts-tab__caption-note code {
+  font-family: var(--font-mono);
+  background: var(--bg-sunken);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+}
+
+.ts-tab__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  /* Scroll long activity lists internally instead of growing the page.
+     The flex:1 chain alone doesn't bound the height when the outer shell
+     isn't in fixed-viewport mode, so a viewport-relative cap is the
+     reliable kicker. ~5-6 rows visible on a typical screen. */
+  flex: 1;
+  min-height: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  /* Soft fade-out at the bottom edge to hint there's more below */
+  mask-image: linear-gradient(to bottom, black calc(100% - 16px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 16px), transparent 100%);
+  /* Reserve scroll-bar gutter so width doesn't jump */
+  scrollbar-gutter: stable;
+  padding-right: 4px;
+}
+
+.ts-tab__list::-webkit-scrollbar {
+  width: 6px;
+}
+.ts-tab__list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+.ts-tab__list::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* Activities list */
+.activities {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.activity {
+  display: flex;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-tile);
+  transition: background var(--motion-fast) var(--ease),
+    transform var(--motion-fast) var(--ease);
+}
+
+.activity:hover {
+  background: color-mix(in oklab, var(--bg-sunken) 60%, var(--bg-card));
+  transform: translateY(-1px);
+}
+
+.activity--clickable {
+  cursor: pointer;
+}
+.activity--clickable:focus-visible {
+  outline: 2px solid var(--accent, #a564f9);
+  outline-offset: 2px;
+}
+
+.activity--live {
+  border-color: color-mix(in oklab, var(--ring-red) 35%, var(--border));
+  background: color-mix(in oklab, var(--ring-red) 6%, var(--bg-sunken));
+}
+
+.activity--live .activity__type {
+  color: color-mix(in oklab, var(--ring-red) 70%, var(--text));
+}
+
+.activity__live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px 1px 5px;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ring-red) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--ring-red) 35%, transparent);
+  color: var(--ring-red);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.activity__live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ring-red);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--ring-red) 60%, transparent);
+  animation: activity-live-dot 1.4s ease-out infinite;
+}
+
+@keyframes activity-live-dot {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--ring-red) 60%, transparent); }
+  100% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--ring-red) 0%, transparent); }
+}
+
+.activity__live-actions {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: var(--s-2);
+}
+
+.activity__live-btn {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease);
+}
+
+.activity__live-btn:hover {
+  background: color-mix(in oklab, var(--bg-card) 60%, var(--bg-sunken));
+  border-color: color-mix(in oklab, var(--ring-red) 30%, var(--border));
+}
+
+.activity__live-btn--finish {
+  border-color: color-mix(in oklab, var(--ring-red) 35%, var(--border));
+  color: color-mix(in oklab, var(--ring-red) 70%, var(--text));
+}
+
+.activity__live-btn--finish:hover {
+  background: color-mix(in oklab, var(--ring-red) 12%, var(--bg-card));
+}
+
+.activity__icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.activity__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activity__row1 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.activity__type {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.activity__date {
+  font-size: 12px;
+  color: var(--text-mute);
+}
+
+.activity__row2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-mute);
+  flex-wrap: wrap;
+}
+
+.activity__sep {
+  opacity: 0.5;
+}
+
+.activity__insight {
+  margin-top: 6px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--text-subtle);
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
+}
+
+.activity__insight.is-loading {
+  border-top: none;
+  padding-top: 0;
+}
+
+.activity__insight-mark {
+  color: var(--ring-purple);
+  font-weight: 700;
+}
+
+/* Auto-coach note (Subscriptions feature, Ultra-only) — sits above the on-demand
+   activity insight with its own visual treatment so the source of the note is
+   distinguishable. */
+.activity__coach {
+  margin-top: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text);
+  border-radius: var(--r-input);
+  background: color-mix(in oklab, var(--ring-blue) 8%, var(--bg-sunken));
+  border: 1px solid color-mix(in oklab, var(--ring-blue) 25%, var(--border));
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.activity__coach-mark {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.activity__coach-text {
+  flex: 1;
+}
+
+.ts-tab__caption-badges {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+@media (max-width: 600px) {
+  .ts-panel__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ts-panel__tabs {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+  .ts-tab__head {
+    align-items: stretch;
+  }
+  .ts-tab__caption-note {
+    text-align: left;
+  }
+}

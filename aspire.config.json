@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/FitAssistant.AppHost/FitAssistant.AppHost.csproj"
+  }
+}

@@ -1,0 +1,111 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  /* Opaque — content scrolling underneath must not bleed through. */
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.topbar__inner {
+  max-width: var(--max-shell);
+  margin: 0 auto;
+  padding: 12px var(--s-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.topbar__logo {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--ring-blue) 14%, transparent);
+  color: var(--ring-blue);
+}
+
+.topbar__title {
+  font-size: var(--t-h3-size);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.topbar__mock {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ring-purple);
+  background: color-mix(in oklab, var(--ring-purple) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--ring-purple) 30%, transparent);
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .topbar__inner {
+    padding: 10px var(--s-4);
+    gap: var(--s-2);
+  }
+}
+
+@media (max-width: 600px) {
+  .topbar__inner {
+    padding: 10px var(--s-3);
+  }
+  .topbar__brand {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .topbar__title {
+    font-size: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .topbar__logo {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+  .topbar__mock {
+    display: none;
+  }
+  .topbar__actions {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar__inner {
+    padding: 8px var(--s-3);
+  }
+  .topbar__brand {
+    gap: var(--s-2);
+  }
+  .topbar__title {
+    /* Hide the wordmark on very small screens — logo carries the brand */
+    display: none;
+  }
+}

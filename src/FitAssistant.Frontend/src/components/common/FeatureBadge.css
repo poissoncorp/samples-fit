@@ -1,0 +1,259 @@
+/* "RavenDB feature" pill — animated, but tasteful.
+ * Three layered passive animations:
+ *   1. ::before  — diagonal sheen sweep (3.4s loop, mostly invisible)
+ *   2. ::after   — radial halo glow (4.2s ease-in-out pulse)
+ *   3. ✦ star    — very slow rotation (12s) + scale pulse (3s)
+ * Plus an active hover lift + saturated glow ring + click press.
+ * `prefers-reduced-motion` strips all of it.
+ */
+
+.feature-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--r-pill);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--ring-purple) 18%, transparent),
+      color-mix(in oklab, var(--ring-blue) 12%, transparent)
+    ),
+    var(--bg-card);
+  color: var(--ring-purple);
+  border: 1px solid color-mix(in oklab, var(--ring-purple) 36%, transparent);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  isolation: isolate;
+  overflow: hidden;
+  transition: transform var(--motion-fast) var(--ease),
+    box-shadow var(--motion-base) var(--ease),
+    border-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease),
+    background var(--motion-fast) var(--ease);
+}
+
+.feature-badge--xs {
+  font-size: 11px;
+  padding: 3px 10px 3px 9px;
+  min-height: 22px;
+}
+
+.feature-badge--sm {
+  font-size: var(--t-caption-size);
+  padding: 4px 12px 4px 11px;
+  min-height: 24px;
+}
+
+/* (1) Sheen sweep — a diagonal highlight that traverses the pill */
+.feature-badge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 38%,
+    color-mix(in oklab, var(--ring-purple) 30%, transparent) 50%,
+    color-mix(in oklab, var(--ring-blue) 18%, transparent) 56%,
+    transparent 68%,
+    transparent 100%
+  );
+  background-size: 240% 100%;
+  background-position: 130% 0;
+  animation: feature-sheen 3.4s var(--ease) infinite;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: inherit;
+  mix-blend-mode: plus-lighter;
+}
+
+@keyframes feature-sheen {
+  0%   { background-position: 130% 0; }
+  55%  { background-position: -40% 0; }
+  100% { background-position: -40% 0; }
+}
+
+/* (2) Soft halo glow behind the pill — pulses gently */
+.feature-badge::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--ring-purple) 24%, transparent),
+    transparent 72%
+  );
+  filter: blur(6px);
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0.55;
+  animation: feature-halo 4.2s ease-in-out infinite;
+}
+
+@keyframes feature-halo {
+  0%, 100% { opacity: 0.35; transform: scale(0.94); }
+  50%      { opacity: 0.85; transform: scale(1.06); }
+}
+
+/* (3) Star — very slow rotation + slight scale breath */
+.feature-badge__star {
+  display: inline-flex;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--ring-purple);
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--ring-purple) 70%, transparent));
+  animation: feature-star-spin 12s linear infinite,
+    feature-star-pulse 3s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@keyframes feature-star-spin {
+  0%   { rotate: 0deg; }
+  100% { rotate: 360deg; }
+}
+
+@keyframes feature-star-pulse {
+  0%, 100% { scale: 1; }
+  50%      { scale: 1.18; }
+}
+
+/* Hover — lift + saturated glow ring + brighter star */
+.feature-badge:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--ring-purple) 65%, transparent);
+  color: color-mix(in oklab, var(--ring-purple) 80%, white);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--ring-purple) 28%, transparent),
+      color-mix(in oklab, var(--ring-blue) 22%, transparent)
+    ),
+    var(--bg-card);
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--ring-purple) 18%, transparent),
+    0 6px 18px color-mix(in oklab, var(--ring-purple) 38%, transparent);
+}
+
+.feature-badge:hover .feature-badge__star {
+  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--ring-purple) 90%, transparent));
+}
+
+.feature-badge:active {
+  transform: scale(0.96) translateY(0);
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--ring-purple) 28%, transparent),
+    0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus-visible — stronger ring than the body default for these pills */
+.feature-badge:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--ring-purple),
+    0 6px 18px color-mix(in oklab, var(--ring-purple) 30%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-badge::before,
+  .feature-badge::after,
+  .feature-badge__star {
+    animation: none;
+  }
+  .feature-badge::before {
+    display: none;
+  }
+  .feature-badge::after {
+    opacity: 0.45;
+  }
+}
+
+/* ---------------------------------------------------- POPOVER content --- */
+
+.feature-badge-popover__intro {
+  margin-bottom: var(--s-3);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.feature-badge-popover__challenges {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--s-3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: var(--s-3);
+}
+
+.feature-badge-popover__challenge {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.feature-badge-popover__icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+}
+
+.feature-badge-popover__icon--red {
+  background: color-mix(in oklab, var(--ring-red) 16%, transparent);
+  border-color: color-mix(in oklab, var(--ring-red) 32%, transparent);
+}
+.feature-badge-popover__icon--yellow {
+  background: color-mix(in oklab, var(--ring-yellow) 24%, transparent);
+  border-color: color-mix(in oklab, var(--ring-yellow) 50%, transparent);
+}
+.feature-badge-popover__icon--green {
+  background: color-mix(in oklab, var(--ring-green) 24%, transparent);
+  border-color: color-mix(in oklab, var(--ring-green) 50%, transparent);
+}
+.feature-badge-popover__icon--blue {
+  background: color-mix(in oklab, var(--ring-blue) 16%, transparent);
+  border-color: color-mix(in oklab, var(--ring-blue) 36%, transparent);
+}
+.feature-badge-popover__icon--purple {
+  background: color-mix(in oklab, var(--ring-purple) 16%, transparent);
+  border-color: color-mix(in oklab, var(--ring-purple) 32%, transparent);
+}
+.feature-badge-popover__icon--orange {
+  background: color-mix(in oklab, var(--ring-orange) 18%, transparent);
+  border-color: color-mix(in oklab, var(--ring-orange) 36%, transparent);
+}
+
+.feature-badge-popover__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.feature-badge-popover__challenge-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.feature-badge-popover__challenge-detail {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-mute);
+  line-height: 1.45;
+}

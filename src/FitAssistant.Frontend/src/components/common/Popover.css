@@ -1,0 +1,115 @@
+.popover {
+  position: fixed;
+  /* Higher than the activity modal backdrop (1000) and the trophy-shelf
+     panel (200) — popovers always belong on top of whatever surface
+     triggered them. */
+  z-index: 1100;
+  min-width: 280px;
+  max-width: 360px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  box-shadow: var(--shadow-overlay);
+  padding: var(--s-3);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  transform-origin: top right;
+}
+
+.popover--right {
+  transform: translate(-100%, 0);
+  animation: popover-pop-right var(--motion-base) var(--ease);
+}
+
+.popover--center {
+  transform: translate(-50%, 0);
+  transform-origin: top center;
+  animation: popover-pop-center var(--motion-base) var(--ease);
+}
+
+.popover--left {
+  transform-origin: top left;
+  animation: popover-pop-left var(--motion-base) var(--ease);
+}
+
+@keyframes popover-pop-right {
+  from {
+    opacity: 0;
+    transform: translate(-100%, -6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-100%, 0) scale(1);
+  }
+}
+
+@keyframes popover-pop-center {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes popover-pop-left {
+  from {
+    opacity: 0;
+    transform: translate(0, -6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover--right,
+  .popover--center,
+  .popover--left {
+    animation: none;
+  }
+}
+
+.popover__title {
+  font-size: var(--t-caption-size);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-mute);
+  margin-bottom: var(--s-2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.popover__title::before {
+  content: "✦";
+  color: var(--ring-purple);
+  font-size: 11px;
+  text-shadow: 0 0 6px color-mix(in oklab, var(--ring-purple) 60%, transparent);
+}
+
+.popover__body p {
+  margin-bottom: var(--s-3);
+  color: var(--text);
+}
+
+.popover__body p:last-child {
+  margin-bottom: 0;
+}
+
+.popover__body a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ring-blue);
+  font-weight: 600;
+}
+
+.popover__body a:hover {
+  text-decoration: underline;
+}

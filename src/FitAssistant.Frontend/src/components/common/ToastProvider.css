@@ -1,0 +1,212 @@
+/* When the portal target is inside .app-shell, the toast root inherits
+   `position: sticky` + `height: 0` from .app-shell__toast-root so it
+   rides the wrapper viewport as you scroll the page. The .toast-stack
+   wrapper here just collapses out of the way. */
+.toast-stack {
+  display: contents;
+}
+
+/* Fallback positioning when ToastProvider portals to <body> (loading /
+   welcome phase before AppShell mounts). */
+body > .toast-stack {
+  display: flex;
+  position: fixed;
+  top: var(--s-4);
+  right: var(--s-4);
+  z-index: 1000;
+  flex-direction: column;
+  gap: var(--s-2);
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 280px;
+  max-width: 420px;
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-overlay);
+  animation: toast-in var(--motion-base) var(--ease);
+}
+
+/* Source-based background tint — the user/system distinction lives in
+   the surface colour, not a loud chip. System toasts pick up a faint
+   blue wash; user toasts stay on the card surface. */
+.toast--src-system {
+  background: color-mix(in oklab, var(--ring-blue) 7%, var(--bg-card));
+}
+.toast--src-user {
+  background: var(--bg-card);
+}
+
+/* Tone — keeps the success / error accent for outliers without clashing
+   with the source tint. Success and error override the source tint. */
+.toast--success {
+  --toast-tone: var(--color-success);
+  background: color-mix(in oklab, var(--color-success) 6%, var(--bg-card));
+}
+.toast--error {
+  --toast-tone: var(--color-danger);
+  background: color-mix(in oklab, var(--color-danger) 7%, var(--bg-card));
+}
+.toast--info {
+  --toast-tone: var(--ring-blue);
+}
+
+/* Leading icon — soft tinted disc using the tone variable. */
+.toast__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--toast-tone, var(--ring-blue)) 18%, transparent);
+  color: var(--toast-tone, var(--ring-blue));
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Kind chip — the prominent label that depicts what kind of event it is
+   (goal, feed, trophy, write, attachment, …). Coloured per kind via
+   data attribute selectors below. */
+.toast__kind {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--text-mute) 14%, transparent);
+  color: var(--text-subtle);
+  border: 1px solid color-mix(in oklab, var(--text-mute) 22%, transparent);
+}
+.toast__kind--goal {
+  background: color-mix(in oklab, var(--color-success) 16%, transparent);
+  color: var(--color-success);
+  border-color: color-mix(in oklab, var(--color-success) 32%, transparent);
+}
+.toast__kind--feed {
+  background: color-mix(in oklab, var(--ring-purple) 16%, transparent);
+  color: var(--ring-purple);
+  border-color: color-mix(in oklab, var(--ring-purple) 32%, transparent);
+}
+.toast__kind--trophy {
+  background: color-mix(in oklab, var(--ring-yellow) 22%, transparent);
+  color: #6a4d00;
+  border-color: color-mix(in oklab, var(--ring-yellow) 50%, transparent);
+}
+.toast__kind--write {
+  background: color-mix(in oklab, var(--ring-blue) 14%, transparent);
+  color: var(--ring-blue);
+  border-color: color-mix(in oklab, var(--ring-blue) 30%, transparent);
+}
+.toast__kind--attachment {
+  background: color-mix(in oklab, var(--ring-orange) 16%, transparent);
+  color: var(--ring-orange);
+  border-color: color-mix(in oklab, var(--ring-orange) 32%, transparent);
+}
+.toast__kind--workout {
+  background: color-mix(in oklab, var(--ring-purple) 14%, transparent);
+  color: var(--ring-purple);
+  border-color: color-mix(in oklab, var(--ring-purple) 30%, transparent);
+}
+.toast__kind--meal {
+  background: color-mix(in oklab, var(--ring-blue) 14%, transparent);
+  color: var(--ring-blue);
+  border-color: color-mix(in oklab, var(--ring-blue) 30%, transparent);
+}
+.toast__kind--sync {
+  background: color-mix(in oklab, var(--ring-red) 14%, transparent);
+  color: var(--ring-red);
+  border-color: color-mix(in oklab, var(--ring-red) 30%, transparent);
+}
+.toast__kind--social {
+  background: color-mix(in oklab, var(--ring-green) 18%, transparent);
+  color: #1f6e2a;
+  border-color: color-mix(in oklab, var(--ring-green) 40%, transparent);
+}
+
+/* Source tag — small, monochrome, sits at the trailing edge as a faint
+   provenance marker. Not the main story; the kind chip is. */
+.toast__source {
+  flex: 0 0 auto;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text-mute);
+  background: var(--bg-sunken);
+  opacity: 0.75;
+}
+.toast__source--system {
+  /* Slightly cooler grey so it harmonises with the bg tint */
+  color: color-mix(in oklab, var(--ring-blue) 60%, var(--text-mute));
+}
+
+.toast__message {
+  flex: 1;
+  font-size: var(--t-body-size);
+  line-height: var(--t-body-leading);
+}
+
+.toast__action {
+  font-size: var(--t-caption-size);
+  font-weight: 600;
+  color: var(--ring-blue);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease);
+}
+.toast__action:hover {
+  background: color-mix(in oklab, var(--ring-blue) 12%, transparent);
+}
+
+.toast__close {
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-mute);
+  border-radius: var(--r-pill);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease),
+              color var(--motion-fast) var(--ease);
+}
+.toast__close:hover {
+  background: var(--bg-sunken);
+  color: var(--text);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .toast {
+    min-width: 0;
+    max-width: none;
+  }
+}

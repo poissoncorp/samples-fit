@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FitAssistant.AppHost/FitAssistant.AppHost.csproj" />
+    <Project Path="src/FitAssistant.Backend/FitAssistant.Backend.csproj" />
+    <Project Path="src/FitAssistant.FitFeed/FitAssistant.FitFeed.csproj" />
+    <Project Path="src/FitAssistant.ServiceDefaults/FitAssistant.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FitAssistant.Tests.Integration/FitAssistant.Tests.Integration.csproj" />
+  </Folder>
+</Solution>

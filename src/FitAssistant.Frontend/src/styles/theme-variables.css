@@ -1,0 +1,145 @@
+/* Compatibility shim. All NEW work uses tokens.css + base.css directly.
+   Legacy class names below remain so the in-flight components keep rendering
+   while phases 1-6 replace them. Once those components are gone, this file
+   shrinks to nothing more than the @import lines. */
+
+@import "./tokens.css";
+@import "./base.css";
+
+/* Map legacy variable names onto the new tokens so old components inherit
+   the new theme without rewriting their CSS. */
+:root {
+  --primary: var(--ring-blue);
+  --primary-light: var(--ring-blue);
+  --text-muted: var(--text-mute);
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --danger: var(--color-danger);
+  --radius: var(--r-tile);
+  --shadow: var(--shadow-rest);
+}
+
+/* Legacy classes — kept until each owning component is migrated. */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  padding: var(--s-5);
+  box-shadow: var(--shadow-rest);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--s-2) var(--s-4);
+  border: none;
+  border-radius: var(--r-input);
+  font-size: var(--t-body-size);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--motion-base) var(--ease),
+    transform var(--motion-fast) var(--ease);
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: var(--ring-blue);
+  color: white;
+}
+
+.btn-success {
+  background: var(--ring-green);
+  color: #062a06;
+}
+
+.btn-warning {
+  background: var(--ring-yellow);
+  color: #2a2300;
+}
+
+.tooltip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--s-2);
+  background: color-mix(in oklab, var(--ring-blue) 15%, transparent);
+  border: 1px solid color-mix(in oklab, var(--ring-blue) 35%, transparent);
+  border-radius: var(--r-pill);
+  font-size: var(--t-caption-size);
+  color: var(--ring-blue);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tooltip-content {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  padding: var(--s-3);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  font-size: var(--t-caption-size);
+  line-height: 1.5;
+  color: var(--text);
+  width: 300px;
+  box-shadow: var(--shadow-overlay);
+}
+
+.tooltip-content a {
+  color: var(--ring-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-1) 0 var(--s-2);
+}
+
+.app-title {
+  font-size: var(--t-h2-size);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.app-main {
+  max-width: var(--max-shell);
+  margin: 0 auto;
+  padding: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}

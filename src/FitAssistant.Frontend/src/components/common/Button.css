@@ -1,0 +1,107 @@
+.fa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  border-radius: var(--r-pill);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition: background var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease),
+    transform var(--motion-fast) var(--ease),
+    box-shadow var(--motion-fast) var(--ease);
+}
+
+.fa-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.fa-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fa-btn--sm {
+  padding: 6px var(--s-3);
+  font-size: var(--t-caption-size);
+  min-height: 30px;
+}
+.fa-btn--md {
+  padding: 8px var(--s-4);
+  font-size: 14px;
+  min-height: 36px;
+}
+.fa-btn--lg {
+  padding: 12px var(--s-5);
+  font-size: var(--t-body-size);
+  min-height: 44px;
+}
+
+.fa-btn--primary {
+  background: var(--text);
+  color: var(--bg);
+  border: 1px solid var(--text);
+}
+.fa-btn--primary:hover:not(:disabled) {
+  background: var(--text-subtle);
+  border-color: var(--text-subtle);
+}
+
+.fa-btn--secondary {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.fa-btn--secondary:hover:not(:disabled) {
+  background: var(--bg-sunken);
+  border-color: var(--border-strong);
+}
+
+.fa-btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid transparent;
+}
+.fa-btn--ghost:hover:not(:disabled) {
+  background: var(--bg-sunken);
+}
+
+.fa-btn--danger {
+  background: var(--color-danger);
+  color: white;
+  border: 1px solid var(--color-danger);
+}
+.fa-btn--danger:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.fa-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.fa-btn__label {
+  display: inline-flex;
+}
+
+.fa-btn__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: fa-btn-spin 0.7s linear infinite;
+}
+@keyframes fa-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fa-btn__spinner {
+    animation-duration: 1.5s;
+  }
+}

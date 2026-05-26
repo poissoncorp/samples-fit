@@ -1,0 +1,482 @@
+.coach {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 540px;
+  max-height: 75vh;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+/* Bounded viewport mode — let the split row drive coach height. */
+@media (min-width: 1080px) and (min-height: 760px) {
+  .coach {
+    height: auto;
+    min-height: 0;
+    max-height: 100%;
+  }
+}
+
+.coach__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--ring-purple) 8%, transparent),
+    transparent
+  );
+}
+
+.coach__head-l {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.coach__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--ring-purple) 18%, transparent);
+  color: var(--ring-purple);
+  flex-shrink: 0;
+}
+
+.coach__title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 1px;
+}
+
+/* Body — message list / quick actions */
+.coach__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+/* Quick actions empty state */
+.coach__quick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  height: 100%;
+  justify-content: center;
+}
+
+.coach__quick-prompt {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-mute);
+  margin-bottom: var(--s-2);
+}
+
+.coach__quick-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.coach__quick-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-tile);
+  text-align: left;
+  color: var(--text);
+  transition: background var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease),
+    transform var(--motion-fast) var(--ease);
+}
+
+.coach__quick-chip:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: color-mix(in oklab, var(--bg-sunken) 60%, var(--bg-card));
+  transform: translateY(-1px);
+}
+
+.coach__quick-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Locked (Free tier) Motivate Me chip — clickable but visually hinted. */
+.coach__quick-chip--locked {
+  background: color-mix(in oklab, #ffb347 6%, var(--bg-sunken));
+  border-color: color-mix(in oklab, #ffb347 25%, var(--border));
+}
+
+.coach__quick-chip--locked:hover:not(:disabled) {
+  background: color-mix(in oklab, #ffb347 12%, var(--bg-sunken));
+  border-color: color-mix(in oklab, #ffb347 50%, var(--border));
+}
+
+.coach__quick-tier {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #b0750a;
+  margin-left: 4px;
+  text-transform: uppercase;
+}
+
+.coach__quick-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.coach__quick-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.coach__quick-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.coach__quick-desc {
+  font-size: 12px;
+  color: var(--text-mute);
+}
+
+/* Bubbles */
+.coach__bubble {
+  max-width: 90%;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-card);
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.coach__bubble--user {
+  align-self: flex-end;
+  background: var(--text);
+  color: var(--bg);
+  border-bottom-right-radius: 6px;
+}
+
+.coach__bubble--assistant {
+  align-self: flex-start;
+  background: var(--bg-sunken);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 6px;
+}
+
+.coach__attachment {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.coach__content {
+  white-space: pre-wrap;
+}
+
+.coach__cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: currentColor;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: coach-blink 1s steps(2) infinite;
+}
+
+@keyframes coach-blink {
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coach__cursor {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+.coach__system {
+  align-self: center;
+  font-size: 12px;
+  color: var(--text-mute);
+  background: var(--bg-sunken);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+}
+
+/* Footer — pending attachment + composer */
+.coach__foot {
+  border-top: 1px solid var(--border);
+  padding: var(--s-3) var(--s-3) var(--s-3);
+  background: var(--bg-card);
+}
+
+.coach__pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--s-2);
+  /* The Coach composer is narrow — make sure the chip never blows past
+     its column. Children shrink in priority order: filename first, then
+     badges. */
+  max-width: 100%;
+}
+
+.coach__pending-name {
+  /* Filename ceeds space to the badges + close button. Hard cap so a
+     long name (kfc-chicken-only-one-from-the…) can't push the badges
+     off the visible composer width. */
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* FeatureBadge cluster sitting next to the pending attachment chip — surfaces
+   the AI Agent Attachments + Remote Attachments features that fire when this
+   photo is sent. Tightened gap + scoped font size to claw back a few pixels
+   in this cramped corner of the UI. */
+.coach__pending-badges {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 2px;
+  flex: 0 0 auto;
+}
+.coach__pending-badges .feature-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+}
+
+/* Header badge cluster — multi-agent + tool-actions + tool-queries +
+   ai-agent-parameters + streaming + attachments + remote-attachments. The
+   ribbon variant lets the 7 chips wrap on narrow widths. */
+.coach__badges {
+  display: inline-flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.coach__badges--ribbon {
+  gap: 6px;
+  max-width: 100%;
+}
+
+.coach__head-text {
+  min-width: 0;
+}
+
+/* Three-phase thinking indicator. Phase 1 dots → Phase 2 rotating fit
+   fun-facts → (Phase 3 happens when the first streamed token arrives —
+   Coach.tsx swaps this component out at that point). */
+.coach__thinking {
+  align-self: flex-start;
+  max-width: 90%;
+  padding: var(--s-3) var(--s-4);
+}
+
+.coach__thinking-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-mute);
+}
+
+.coach__thinking-label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.coach__thinking-fact {
+  font-style: italic;
+  animation: coach-thinking-fade var(--motion-base) var(--ease);
+}
+
+.coach__thinking-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.coach__thinking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ring-purple);
+  opacity: 0.4;
+  animation: coach-thinking-pulse 1s infinite;
+}
+
+.coach__thinking-dot:nth-child(2) { animation-delay: 0.15s; }
+.coach__thinking-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes coach-thinking-pulse {
+  0%, 60%, 100% { opacity: 0.4; transform: scale(1); }
+  30%           { opacity: 1;   transform: scale(1.25); }
+}
+
+.coach__thinking-spinner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklab, var(--ring-purple) 20%, transparent);
+  border-top-color: var(--ring-purple);
+  animation: coach-thinking-spin 0.8s linear infinite;
+}
+
+@keyframes coach-thinking-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes coach-thinking-fade {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach__thinking-dot,
+  .coach__thinking-spinner,
+  .coach__thinking-fact {
+    animation: none;
+  }
+  .coach__thinking-dot { opacity: 0.7; }
+}
+
+.coach__pending-x {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--text-mute);
+  font-size: 14px;
+  background: transparent;
+  margin-left: 2px;
+}
+
+.coach__pending-x:hover {
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.coach__inputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-2);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  padding: 6px;
+  transition: border-color var(--motion-fast) var(--ease);
+}
+
+.coach__inputRow:focus-within {
+  border-color: var(--ring-purple);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring-purple) 18%, transparent);
+}
+
+.coach__attach,
+.coach__send {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  color: var(--text-mute);
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+.coach__attach:hover:not(:disabled),
+.coach__send:hover:not(:disabled) {
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.coach__send {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.coach__send:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--text);
+  color: var(--bg);
+}
+
+.coach__send:disabled,
+.coach__attach:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.coach__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: none;
+  padding: 6px 4px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  line-height: 1.4;
+  color: var(--text);
+  min-height: 24px;
+  max-height: 140px;
+}
+
+.coach__input::placeholder {
+  color: var(--text-mute);
+}
+
+@media (max-width: 600px) {
+  .coach {
+    min-height: 400px;
+    max-height: none;
+  }
+}

@@ -1,0 +1,162 @@
+/* Bounded-viewport layout (default): the page itself does NOT scroll.
+ *   - TopBar     — top, fixed height
+ *   - Hero       — KPI ribbon + AI summary, natural height, always visible
+ *   - Split row  — time-series + coach, fills remaining viewport,
+ *                  each panel internally scrolls
+ *
+ * On narrower or shorter viewports we fall back to natural page scroll
+ * (the bounded layout would feel cramped below ~720px tall or 1080px wide).
+ */
+
+.app-shell {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  /* Anchor for the toast root and the pipeline widget — both use
+     position: absolute so they sit inside the sample frame rather than
+     anchoring to the browser viewport (which would escape the
+     <samples-ui-wrapper> Web Component). */
+  position: relative;
+
+  /* When this app is mounted inside the <samples-ui-wrapper> Web Component,
+     its shadow root's <main> is `display:flex; align-items:center;
+     overflow-y:auto`. If our content is taller than the wrapper's main,
+     flex centering pushes the content past the scroll origin so the top
+     (KPI ribbon, etc.) is unreachable. align-self override forces top-
+     alignment regardless of the wrapper's defaults. */
+  align-self: flex-start;
+}
+
+/* Toast portal anchor — sticky height-0 so the toasts hover near the
+   top-right of the visible viewport as the user scrolls the page. The
+   wrapper's main scrolls; .app-shell rides that scroll; this sticky
+   child latches at top: var(--s-4) of the visible region.
+   Height 0 means it never pushes content below it in the flex column. */
+.app-shell__toast-root {
+  position: sticky;
+  top: var(--s-4);
+  align-self: flex-end;
+  margin-right: var(--s-4);
+  height: 0;
+  z-index: 1000;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  overflow: visible;
+}
+
+/* Top-level tabs — Dashboard | Social. Sits between the TopBar and main. */
+.app-shell__tabs {
+  width: 100%;
+  max-width: var(--max-shell);
+  margin: 0 auto;
+  padding: 8px 16px 0;
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-border, #e5e5e7);
+}
+
+.app-shell__tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.app-shell__tab:hover { color: var(--color-text); }
+
+.app-shell__tab.is-active {
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent, #007aff);
+}
+
+.app-shell__main {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--max-shell);
+  margin: 0 auto;
+  padding: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.app-shell__ribbon {
+  display: grid;
+  /* 5 tiles after the v2 Percentile addition — auto-fit lets them flow into
+     2 rows on narrower screens and 5 columns when there's room. */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--s-4);
+  flex-shrink: 0;
+}
+
+.app-shell__split {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--s-4);
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-shell__timeseries-slot,
+.app-shell__coach-slot {
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+}
+
+.app-shell__timeseries-slot > *,
+.app-shell__coach-slot > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Pre-Track-C this had a "bounded viewport" mode that pinned .app-shell
+   to 100dvh with overflow:hidden on wide+tall viewports — TopBar + KPI +
+   AI Summary fit, split row handled its own internal scroll. Adding the
+   top-level Dashboard|Social tab nav above main pushed total content past
+   the viewport budget, and the overflow:hidden clipped the bottom of the
+   page with no scroll path to recover it. We now use natural page scroll
+   everywhere; the split row is natural height. The internal scrollers on
+   TimeSeriesPanel and Coach still work for their own contents. */
+@media (max-width: 1080px) {
+  .app-shell__split {
+    flex: none;
+  }
+  .app-shell__timeseries-slot,
+  .app-shell__coach-slot {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 1080px) {
+  .app-shell__split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell__ribbon {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .app-shell__main {
+    padding: var(--s-3);
+    gap: var(--s-3);
+  }
+  .app-shell__ribbon {
+    gap: var(--s-3);
+  }
+}

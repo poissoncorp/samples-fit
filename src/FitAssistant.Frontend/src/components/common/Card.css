@@ -1,0 +1,35 @@
+.fa-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-rest);
+  transition: box-shadow var(--motion-base) var(--ease),
+    border-color var(--motion-base) var(--ease);
+}
+
+.fa-card--sunken {
+  background: var(--bg-sunken);
+  box-shadow: none;
+}
+
+.fa-card--p-none {
+  padding: 0;
+}
+.fa-card--p-sm {
+  padding: var(--s-3);
+}
+.fa-card--p-md {
+  padding: var(--s-5);
+}
+.fa-card--p-lg {
+  padding: var(--s-6) var(--s-7);
+}
+
+@media (max-width: 600px) {
+  .fa-card--p-md {
+    padding: var(--s-4);
+  }
+  .fa-card--p-lg {
+    padding: var(--s-5);
+  }
+}

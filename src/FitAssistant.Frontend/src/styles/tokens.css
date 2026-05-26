@@ -1,0 +1,108 @@
+/* Apple Health-inspired token system.
+ *
+ * The samples-ui-wrapper Web Component slots our content under
+ * <div class="samples-ui-wrapper light|dark"> which sets a few CSS vars
+ * (--bg, --text, --border, --primary) at that container level. We need
+ * tokens to work BOTH inside our slotted subtree AND outside it (portals
+ * for toasts and popovers mount to document.body, which is outside the
+ * slot but inside the page).
+ *
+ * Strategy:
+ *   1. Define ALL tokens at :root → cascade reaches body + portals.
+ *   2. Re-declare the same tokens at #root → they win against wrapper
+ *      leakage inside our subtree.
+ *   3. data-theme on <html> drives both layers in lockstep.
+ */
+
+/* Light-only palette. Dark mode was removed — it never landed cleanly on
+   the chart visuals or the colour-tinted feature pills, and the sample is
+   demo-only so a single mode is enough. */
+:root,
+#root {
+  --bg: #f5f5f7;
+  --bg-card: #ffffff;
+  --bg-sunken: #ededf0;
+  --bg-overlay: rgba(255, 255, 255, 0.72);
+
+  --text: #1d1d1f;
+  --text-mute: #86868b;
+  --text-subtle: #6e6e73;
+
+  --border: #d2d2d7;
+  --border-strong: #b8b8be;
+
+  --ring-red: #ff375f;
+  --ring-green: #a4f538;
+  --ring-blue: #00c7be;
+  --ring-yellow: #f9d649;
+  --ring-purple: #af52de;
+  --ring-orange: #ff9f0a;
+
+  --color-accent: var(--ring-blue);
+  --color-success: #34c759;
+  --color-warning: #ff9f0a;
+  --color-danger: #ff3b30;
+
+  --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-overlay: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring-blue);
+}
+
+/* ------------------------------------------------------------- STATIC --- */
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display",
+    "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+
+  --t-display-size: 48px;
+  --t-display-weight: 700;
+  --t-display-leading: 1.05;
+  --t-display-tracking: -0.02em;
+
+  --t-h1-size: 28px;
+  --t-h1-weight: 600;
+  --t-h1-leading: 1.2;
+  --t-h1-tracking: -0.01em;
+
+  --t-h2-size: 22px;
+  --t-h2-weight: 600;
+  --t-h2-leading: 1.25;
+
+  --t-h3-size: 17px;
+  --t-h3-weight: 600;
+  --t-h3-leading: 1.35;
+
+  --t-body-size: 15px;
+  --t-body-weight: 400;
+  --t-body-leading: 1.5;
+
+  --t-caption-size: 13px;
+  --t-caption-weight: 500;
+  --t-caption-leading: 1.4;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 32px;
+  --s-8: 48px;
+  --s-9: 64px;
+
+  --r-card: 20px;
+  --r-tile: 16px;
+  --r-input: 12px;
+  --r-pill: 999px;
+
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+
+  --max-shell: 1280px;
+  --bp-mobile: 600px;
+  --bp-tablet: 900px;
+}

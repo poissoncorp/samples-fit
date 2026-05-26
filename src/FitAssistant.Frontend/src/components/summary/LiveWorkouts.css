@@ -1,0 +1,125 @@
+.live-wo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-card);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--ring-red) 6%, var(--bg-card)),
+    var(--bg-card)
+  );
+  border: 1px solid var(--border);
+}
+
+.live-wo__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.live-wo__pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ring-red);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--ring-red) 50%, transparent);
+  animation: live-wo-pulse 1.6s ease-out infinite;
+  flex-shrink: 0;
+}
+
+.live-wo__pulse[data-connected="no"] {
+  background: var(--text-mute);
+  animation: none;
+  opacity: 0.6;
+}
+
+@keyframes live-wo-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--ring-red) 60%, transparent); }
+  100% { box-shadow: 0 0 0 12px color-mix(in oklab, var(--ring-red) 0%, transparent); }
+}
+
+.live-wo__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-mute);
+}
+
+.live-wo__count {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ring-red) 18%, transparent);
+  color: var(--ring-red);
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+  text-align: center;
+}
+
+.live-wo__rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.live-wo__item {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+
+.live-wo__item strong {
+  font-weight: 700;
+  color: color-mix(in oklab, var(--ring-red) 75%, var(--text));
+}
+
+.live-wo__when {
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.live-wo__live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px 1px 5px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ring-red) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--ring-red) 35%, transparent);
+  color: var(--ring-red);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.live-wo__live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ring-red);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--ring-red) 60%, transparent);
+  animation: live-wo-live-dot 1.4s ease-out infinite;
+}
+
+@keyframes live-wo-live-dot {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--ring-red) 60%, transparent); }
+  100% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--ring-red) 0%, transparent); }
+}
+
+.live-wo__empty {
+  font-size: 13px;
+  color: var(--text-mute);
+}
+
+.live-wo__empty strong {
+  color: var(--text);
+  font-weight: 600;
+}

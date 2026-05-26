@@ -1,0 +1,399 @@
+.trends-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* was 16 — tighter section rhythm */
+}
+
+.trends-tab__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.trends-tab__caption {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+.trends-tab__flush {
+  background: transparent;
+  border: 1px solid var(--color-border, #e5e5e7);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-accent, #007aff);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.trends-tab__flush:hover:not(:disabled) {
+  background: rgba(0, 122, 255, 0.08);
+  border-color: var(--color-accent, #007aff);
+}
+.trends-tab__flush:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.trends-tab__flush-msg {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.trends-tab__period {
+  display: flex;
+  gap: 4px;
+}
+
+.trends-tab__period-tab {
+  background: transparent;
+  border: 1px solid var(--color-border, #e5e5e7);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.trends-tab__period-tab.is-active {
+  background: var(--color-accent, #007aff);
+  color: white;
+  border-color: var(--color-accent, #007aff);
+}
+
+.trends-tab__section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* was 8 */
+}
+
+.trends-tab__section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.trends-tab__section-title {
+  margin: 0;
+  font-size: 11px; /* was 13 */
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.trends-tab__section-hint {
+  font-size: 10px; /* was 11 */
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+
+/* ---- "Your standing" ribbon — slim, secondary-content sized ---- */
+
+.trends-tab__standing {
+  display: grid;
+  /* Smaller minmax than the dashboard KpiRibbon — these are nested-tab
+     content, not page-level KPIs. */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.trends-standing-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e5e5e7);
+  border-radius: 8px;
+}
+
+.trends-standing-tile__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.trends-standing-tile__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted, #71717a);
+}
+
+.trends-standing-tile__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.trends-standing-tile__valueArea {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.trends-standing-tile__value {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.trends-standing-tile__hint {
+  font-size: 10px;
+  color: var(--color-text-muted, #71717a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trends-standing-tile__visual {
+  flex-shrink: 0;
+}
+
+/* ---- Percentile bar (used in the two rank tiles). Adapted from the
+       dashboard's .kpi-percentile so the visual language matches; tone is
+       parametrised via a wrapper class instead of hard-coding orange. ---- */
+
+.trends-percentile {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 90px; /* was 110 — slimmer to fit the compact tile */
+}
+
+.trends-percentile__bar {
+  position: relative;
+  height: 8px;
+  border-radius: 6px;
+  background: var(--bg-sunken, #f3f3f5);
+  border: 1px solid var(--border, #e5e5e7);
+  overflow: visible;
+}
+
+.trends-percentile__fill {
+  position: absolute;
+  inset: 0;
+  width: var(--p);
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--tone) 30%, transparent),
+    var(--tone)
+  );
+}
+
+.trends-percentile__pin {
+  position: absolute;
+  top: 50%;
+  left: var(--p);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--tone);
+  border: 2px solid var(--bg-card, #fff);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--tone) 35%, transparent);
+  transform: translate(-50%, -50%);
+}
+
+.trends-percentile__legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-mute, #71717a);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.trends-percentile--orange  { --tone: var(--ring-orange, #ff9500); }
+.trends-percentile--purple  { --tone: var(--ring-purple, #af52de); }
+.trends-percentile--blue    { --tone: var(--ring-blue,   #007aff); }
+
+/* ---- Delta dial (Effort-vs-others tile). Center-zero horizontal needle:
+       sits at 50% when delta = 0, slides right for +%, left for −%. Capped
+       visually at ±50% — beyond that it just sticks at the rail. ---- */
+
+.trends-dial {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100px; /* was 130 — slimmer to fit the compact tile */
+}
+
+.trends-dial__track {
+  position: relative;
+  height: 8px;
+  border-radius: 6px;
+  background: var(--bg-sunken, #f3f3f5);
+  border: 1px solid var(--border, #e5e5e7);
+}
+
+.trends-dial__zero {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 1px;
+  background: var(--border, #d4d4d8);
+}
+
+.trends-dial__needle {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card, #fff);
+  transform: translate(-50%, -50%);
+  transition: left 0.25s ease-out;
+}
+
+.trends-dial.is-up   .trends-dial__needle {
+  background: #34c759;
+  box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.35);
+}
+.trends-dial.is-down .trends-dial__needle {
+  background: #ff3b30;
+  box-shadow: 0 0 0 2px rgba(255, 59, 48, 0.35);
+}
+
+.trends-dial--empty .trends-dial__track {
+  opacity: 0.5;
+}
+
+.trends-dial__legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-mute, #71717a);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.trends-tab__empty {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding: 12px 0;
+  margin: 0;
+}
+
+/* ---- Trending list ---- */
+
+.trends-tab__trending {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trends-tab__trending-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--color-border, #e5e5e7);
+}
+
+.trends-tab__trending-type   { font-weight: 500; }
+.trends-tab__trending-count  { color: var(--color-text-muted); }
+.trends-tab__trending-kcal   { color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+
+/* ---- Compare table ---- */
+
+.trends-tab__compare {
+  width: 100%;
+  font-size: 12px;          /* was 13 */
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.trends-tab__compare th,
+.trends-tab__compare td {
+  text-align: left;
+  padding: 3px 8px;         /* was 6 vertical — half-height rows */
+  border-bottom: 1px solid var(--color-border, #e5e5e7);
+}
+
+.trends-tab__compare th {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: 10px;          /* was 11 */
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.trends-tab__delta {
+  margin-left: 6px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.trends-tab__delta.is-up   { color: #34c759; }
+.trends-tab__delta.is-down { color: #ff3b30; }
+
+.trends-tab__delta-label {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.trends-tab__muted {
+  color: var(--color-text-muted);
+}
+
+/* ---- Daily bar chart ---- */
+
+.trends-tab__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 70px; /* was 120 — secondary content, doesn't need to dominate */
+  padding: 0 4px;
+}
+
+.trends-tab__bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  height: 100%;
+  position: relative;
+}
+
+.trends-tab__bar-count {
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.trends-tab__bar-fill {
+  width: 100%;
+  background: var(--color-accent, #007aff);
+  border-radius: 4px 4px 0 0;
+  min-height: 2px;
+  transition: height 0.2s ease-out;
+}
+
+.trends-tab__bar-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}

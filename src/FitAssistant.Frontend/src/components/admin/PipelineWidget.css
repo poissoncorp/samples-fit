@@ -1,0 +1,203 @@
+/* Floating system-status HUD. Sits as a sticky-bottom child of .app-shell
+ * so it floats with the page as the user scrolls — mirrors the sticky-top
+ * toast root. The expanded panel grows UPWARD from the chip via absolute
+ * positioning so the chip stays at the sticky anchor regardless of state.
+ *
+ * Collapsed: a chip with consumed + DuckDB-row counts.
+ * Expanded: vertical component health list.
+ */
+
+.pipeline-widget {
+  position: sticky;
+  bottom: var(--s-4);
+  align-self: flex-start;
+  margin-left: var(--s-4);
+  /* Pulls the widget up off the bottom flex baseline so it floats over
+     content that would otherwise sit below it. */
+  margin-top: auto;
+  z-index: 900;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+}
+
+.pipeline-widget--hidden {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border, #d4d4d8);
+  background: var(--color-surface, #fff);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* ---- Chip ---- */
+
+.pipeline-widget__chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border, #d4d4d8);
+  border-radius: 999px;
+  background: var(--color-surface, #fff);
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-text);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: border-color 0.3s ease;
+}
+
+.pipeline-widget__chip.is-flashing {
+  border-color: #34c759;
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.18), 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.pipeline-widget__dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #34c759;
+  box-shadow: 0 0 6px rgba(52, 199, 89, 0.6);
+}
+
+.pipeline-widget__chip-label    { font-weight: 600; color: var(--color-text-muted); }
+.pipeline-widget__chip-stat     { font-variant-numeric: tabular-nums; font-weight: 600; }
+.pipeline-widget__chip-sep      { color: var(--color-text-muted); opacity: 0.5; }
+.pipeline-widget__inflight {
+  background: #ffb84d;
+  color: #1a1a1a;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* ---- Expanded panel ---- */
+
+.pipeline-widget__panel {
+  /* Anchor: 8px above the chip. The widget is the positioned ancestor
+     (position: sticky), so bottom: calc(100% + 8px) sits 8px above its
+     top edge — i.e., immediately above the chip. */
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  width: 460px;
+  max-width: calc(100vw - 32px);
+  box-shadow: var(--shadow-overlay);
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+/* ---- Section headings ---- */
+
+.pw-events__head,
+.pw-components__head {
+  margin: 0 0 6px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+/* ---- Recent events ---- */
+
+.pw-events__list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 200px; overflow-y: auto;
+}
+
+.pw-events__item {
+  display: grid;
+  grid-template-columns: 64px 56px 1fr;
+  align-items: baseline;
+  column-gap: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pw-events__item.is-fresh {
+  background: rgba(52,199,89,0.12);
+  animation: pw-fade 1.5s ease-out;
+}
+
+@keyframes pw-fade {
+  0%   { background: rgba(52,199,89,0.30); }
+  100% { background: rgba(52,199,89,0.0); }
+}
+
+.pw-events__when { color: var(--color-text-muted); font-size: 10px; }
+
+.pw-events__kind {
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-align: center;
+  background: var(--color-surface-muted, #f3f3f5);
+  color: var(--color-text-muted);
+}
+
+.pw-events__kind--queue   { background: rgba(52, 199, 89, 0.12);  color: #1f7a3a; }
+.pw-events__kind--olap    { background: rgba(0, 122, 255, 0.12);  color: #0a63cf; }
+
+.pw-events__summary { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.pw-events__empty {
+  color: var(--color-text-muted);
+  font-size: 11px; padding: 8px 0;
+}
+
+/* ---- Components list ---- */
+
+.pw-components__list {
+  list-style: none; padding: 0; margin: 0;
+  /* Two-column grid: halves vertical height. Status moves to row title (hover). */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+  row-gap: 2px;
+}
+
+.pw-component {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: center;
+  column-gap: 8px;
+  padding: 2px 6px;
+  font-size: 11px;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pw-component__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--color-border, #d4d4d8);
+}
+
+.pw-component--warm .pw-component__dot { background: #34c759; box-shadow: 0 0 4px rgba(52,199,89,0.5); }
+.pw-component--busy .pw-component__dot { background: #ffb84d; box-shadow: 0 0 4px rgba(255,184,77,0.5); }
+.pw-component--cold .pw-component__dot { background: #d4d4d8; }
+
+.pw-component--cold { opacity: 0.7; }
+
+.pw-component__name   { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pw-component__count  { font-weight: 600; color: var(--color-text-muted); }
+
+/* ---- Footer ---- */
+
+.pipeline-widget__foot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border, #d4d4d8);
+}
+
+.pipeline-widget__hide {
+  background: transparent; border: none; cursor: pointer;
+  color: var(--color-text-muted); font: inherit;
+  padding: 0; text-decoration: underline;
+}
+
+.pipeline-widget__gen { color: var(--color-text-muted); font-size: 10px; }

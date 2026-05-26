@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RavenDB.Client" />
+    <PackageReference Include="CommunityToolkit.Aspire.RavenDB.Client" />
+    <PackageReference Include="AWSSDK.S3" />
+    <PackageReference Include="DuckDB.NET.Bindings.Full" />
+    <PackageReference Include="DuckDB.NET.Data.Full" />
+    <PackageReference Include="RabbitMQ.Client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FitAssistant.ServiceDefaults\FitAssistant.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+
+</Project>

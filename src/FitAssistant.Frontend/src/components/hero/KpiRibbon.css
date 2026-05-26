@@ -1,0 +1,90 @@
+.kpi-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: 80px;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+.kpi-dots__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  transition: background var(--motion-base) var(--ease),
+    border-color var(--motion-base) var(--ease);
+}
+
+.kpi-dots__dot.is-on {
+  background: var(--ring-purple);
+  border-color: var(--ring-purple);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring-purple) 20%, transparent);
+}
+
+/* Percentile tile — horizontal bar with a pin marker at the user's position. */
+.kpi-percentile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 110px;
+}
+
+.kpi-percentile__bar {
+  position: relative;
+  height: 8px;
+  border-radius: 6px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  overflow: visible;
+}
+
+.kpi-percentile__fill {
+  position: absolute;
+  inset: 0;
+  width: var(--p);
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--ring-orange) 30%, transparent),
+    var(--ring-orange)
+  );
+}
+
+.kpi-percentile__pin {
+  position: absolute;
+  top: 50%;
+  left: var(--p);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ring-orange);
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring-orange) 35%, transparent);
+  transform: translate(-50%, -50%);
+}
+
+.kpi-percentile__legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Merged Calories tile hint — "deficit · in 1,544 · out 330" stacked
+   tightly under the big number. */
+.kpi-calories-hint {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.kpi-calories-hint__sep {
+  color: var(--text-mute);
+  opacity: 0.6;
+}

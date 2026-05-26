@@ -1,0 +1,314 @@
+.user-pill-host {
+  position: relative;
+  display: inline-flex;
+}
+
+.user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 4px 10px 4px 4px;
+  border-radius: var(--r-pill);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: background var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease),
+    transform var(--motion-fast) var(--ease);
+}
+
+.user-pill:hover {
+  background: var(--bg-sunken);
+  border-color: var(--border-strong);
+}
+
+.user-pill:active {
+  transform: scale(0.98);
+}
+
+.user-pill__avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.user-pill__name {
+  font-size: 14px;
+  font-weight: 600;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-pill__chev {
+  color: var(--text-mute);
+}
+
+.user-pill__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 280px;
+  max-width: 340px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  box-shadow: var(--shadow-overlay);
+  padding: var(--s-2);
+  z-index: 50;
+  animation: pop-in var(--motion-base) var(--ease);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-pill__menu-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 10px 4px;
+}
+
+.user-pill__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.user-pill__item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--r-input);
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  transition: background var(--motion-fast) var(--ease);
+}
+
+.user-pill__item:hover {
+  background: var(--bg-sunken);
+}
+
+.user-pill__item.is-selected {
+  background: color-mix(in oklab, var(--ring-blue) 10%, transparent);
+  color: var(--ring-blue);
+}
+
+.user-pill__item--ghost {
+  color: var(--text-mute);
+}
+
+.user-pill__item-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-pill__item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-pill__item-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-pill__item-goal {
+  font-size: 12px;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-pill__divider {
+  height: 1px;
+  background: var(--border);
+  margin: var(--s-2) 6px;
+}
+
+.user-pill__plus {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: var(--bg-sunken);
+  border: 1px dashed var(--border-strong);
+  color: var(--text-mute);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.user-pill__new {
+  padding: 4px;
+}
+
+.user-pill__goals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 6px var(--s-2);
+}
+
+.user-pill__goal {
+  padding: 6px 10px;
+  border-radius: var(--r-pill);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: var(--t-caption-size);
+  font-weight: 500;
+  transition: background var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease);
+}
+
+.user-pill__goal:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--ring-blue) 10%, var(--bg-sunken));
+  border-color: var(--ring-blue);
+  color: var(--ring-blue);
+}
+
+.user-pill__loading {
+  font-size: var(--t-caption-size);
+  color: var(--text-mute);
+  padding: 4px 10px;
+}
+
+.user-pill__new-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--s-2);
+}
+
+/* Ultra (premium) tier marker — iridescent gold pill that's the visual
+   counterpart to FeatureBadge and clearly reads as "premium tier". */
+.user-pill__ultra {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px 2px 5px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  color: #5a3a00;
+  background: linear-gradient(
+    135deg,
+    #ffe27a 0%,
+    #ffb347 45%,
+    #ff8a4c 100%
+  );
+  box-shadow: 0 1px 2px rgba(255, 153, 51, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.user-pill__ultra-spark {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.user-pill__ultra--inline {
+  margin-left: 6px;
+  padding: 1px 5px 1px 4px;
+  font-size: 8px;
+}
+
+/* Ultra checkbox in the New persona form — subtle but visible upsell. */
+.user-pill__ultra-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: var(--s-2) 8px;
+  margin: 4px 6px 0;
+  border-radius: var(--r-input);
+  background: color-mix(in oklab, #ffb347 8%, var(--bg-sunken));
+  border: 1px solid color-mix(in oklab, #ffb347 30%, var(--border));
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease);
+}
+
+.user-pill__ultra-toggle:hover {
+  background: color-mix(in oklab, #ffb347 14%, var(--bg-sunken));
+  border-color: color-mix(in oklab, #ffb347 50%, var(--border));
+}
+
+.user-pill__ultra-toggle input {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.user-pill__ultra-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.user-pill__ultra-toggle-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.user-pill__ultra-toggle-desc {
+  font-size: 11px;
+  color: var(--text-mute);
+  line-height: 1.35;
+}
+
+@media (max-width: 600px) {
+  .user-pill__name {
+    display: none;
+  }
+  .user-pill {
+    padding: 3px;
+  }
+  .user-pill__chev {
+    margin-right: 4px;
+  }
+  .user-pill__menu {
+    right: -8px;
+    min-width: 260px;
+  }
+}
