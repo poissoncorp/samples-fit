@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { getTrends, runOlapEtl, YourPeerStanding } from '../../api';
 import { Skeleton } from '../common/Skeleton';
-import { FeatureBadge } from '../common/FeatureBadge';
 import './TrendsTab.css';
 
 type Period = 'week' | 'month' | 'year';

@@ -4,7 +4,6 @@ import { CoachQuickActions } from './CoachQuickActions';
 import { MessageBubble, CoachMessage } from './MessageBubble';
 import { CoachThinking } from './CoachThinking';
 import { streamChat } from '../../api';
-import { useToast } from '../../hooks/useToast';
 import { FeatureBadge } from '../common/FeatureBadge';
 import './Coach.css';
 
@@ -29,7 +28,6 @@ export const Coach: React.FC<CoachProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const toast = useToast();
 
   const hasMessages = messages.length > 0;
 

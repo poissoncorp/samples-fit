@@ -17,7 +17,7 @@ interface HeartRateTabProps {
 
 function formatLabel(timestamp: string, range: Range): string {
   const d = new Date(timestamp);
-  if (range === '24h' || range === '7d' && d.getDate() === new Date().getDate()) {
+  if (range === '24h' || (range === '7d' && d.getDate() === new Date().getDate())) {
     return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   }
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

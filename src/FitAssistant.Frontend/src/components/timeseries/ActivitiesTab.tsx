@@ -79,7 +79,7 @@ export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
 
   // Re-render every 15s so "live · Xm" stays current. (We no longer count
   // down to EndTime — LIVE is purely "endTime is null".)
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 15000);
     return () => clearInterval(id);
@@ -95,8 +95,7 @@ export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
       if (aLive !== bLive) return aLive ? -1 : 1;
       return Date.parse(b.startTime) - Date.parse(a.startTime);
     });
-    // tick is referenced to force re-sort when the 15s ticker bumps
-  }, [data, tick]);
+  }, [data]);
 
   return (
     <div className="ts-tab">

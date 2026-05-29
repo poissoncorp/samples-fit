@@ -38,6 +38,7 @@ export function useApi<T>(fetcher: () => Promise<T>, deps: ReadonlyArray<unknown
     } finally {
       if (myId === reqId.current) setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
   useEffect(() => {

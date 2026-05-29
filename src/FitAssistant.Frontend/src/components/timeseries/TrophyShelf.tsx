@@ -75,7 +75,7 @@ export const TrophyShelf: React.FC<TrophyShelfProps> = ({ state }) => {
               the same event.
             </div>
           ) : (
-            <ul className="trophy-shelf__list" role="list">
+            <ul className="trophy-shelf__list">
               <Row icon="🔥" title={`Current streak: ${state.currentStreakDays} day${state.currentStreakDays === 1 ? '' : 's'}`}
                    detail={`Longest streak so far: ${state.longestStreakDays}.`} />
               <Row icon="⚡" title={`Level ${level}`}
