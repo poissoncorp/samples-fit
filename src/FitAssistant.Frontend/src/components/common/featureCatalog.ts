@@ -1,5 +1,5 @@
 // Pure metadata: every RavenDB primitive the app demonstrates, with the copy
-// that powers FeatureBadge popovers. Edits here are content edits — the
+// that powers FeatureBadge popovers. Edits here are content edits; the
 // component renders whatever the catalog provides.
 
 export type FeatureKey =
@@ -46,25 +46,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Time Series',
     title: 'RavenDB Time Series',
     description:
-      "Heart-rate samples are written to a Time Series called `HeartRates` directly on each `UserProfile` document — one entry every five minutes, value = bpm. RavenDB stores TS compressed inline on the parent doc; the dashboard reads the most recent slice for the Resting HR tile with a single range query.",
+      'Native time-series primitive that lives directly on the parent document. No separate sensors collection, no sidecar store. Range queries return slices in milliseconds, even against millions of points.',
     challenges: [
       {
         icon: '📍',
         tone: 'blue',
         title: 'On the document',
-        detail: 'No separate sensors collection. Each UserProfile owns its own `HeartRates` series — query the user, get the points.',
+        detail: 'Each document owns its own series. Query the parent, get the points.',
       },
       {
         icon: '⚡',
         tone: 'red',
         title: 'Range queries on millions of points',
-        detail: 'Server returns the slice in milliseconds; the client never folds a raw stream.',
+        detail: 'Server returns the slice in milliseconds. Client never folds a raw stream.',
       },
       {
         icon: '🪶',
         tone: 'purple',
         title: 'Native primitive',
-        detail: 'TS lives next to the doc, indexed for time-bounded reads — no plug-in store, no sidecar.',
+        detail: 'Time-series lives next to the document, indexed for time-bounded reads.',
       },
     ],
     docsUrl:
@@ -75,25 +75,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Retention',
     title: 'Time Series Retention Policy',
     description:
-      "Each tier of the HR pyramid carries its own retention: raw `HeartRates` 30 days, `HeartRates@ByHour` 30 days, `HeartRates@ByDay` 6 months, `HeartRates@ByMonth` forever. RavenDB prunes the lower tiers automatically once the higher tier has absorbed them — old detail evaporates, long-term aggregates stay.",
+      'Each rollup tier carries its own retention window. Raw points expire fast, aggregates stay forever. The server prunes on its own. No cron, no batch job.',
     challenges: [
       {
         icon: '🧹',
         tone: 'green',
         title: 'Auto-pruning',
-        detail: 'Raw 5-min HR points are deleted after 30d. By then the ByHour tier holds the same window at 1/12th the volume.',
+        detail: 'Raw points expire after their retention window. The next tier already holds the same range at a fraction of the volume.',
       },
       {
         icon: '📦',
         tone: 'yellow',
         title: 'Tier-aware storage',
-        detail: 'Hot tier = high-resolution short window. Cold tier = low-resolution long window. Read cost scales with the chart, not the history.',
+        detail: 'Hot tier is a high-resolution short window. Cold tier is a low-resolution long window. Read cost scales with the chart, not the history.',
       },
       {
         icon: '🛡️',
         tone: 'blue',
         title: 'No batch jobs',
-        detail: 'Retention rules are declarative on the collection — RavenDB sweeps; you don\'t write a cron.',
+        detail: 'Retention rules are declarative on the collection. RavenDB sweeps automatically.',
       },
     ],
     docsUrl:
@@ -104,25 +104,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Rollups',
     title: 'Time Series Rollups',
     description:
-      "HR samples land in a Time Series on each UserProfile — `HeartRates`, one entry every five minutes. The rollup pyramid configured on the UserProfiles collection auto-aggregates that raw stream into three derived tiers — `HeartRates@ByHour`, `HeartRates@ByDay`, `HeartRates@ByMonth` — each with its own retention. The Heart Rate tab queries the right tier per range; no client-side aggregation, no batch jobs.",
+      'Raw time-series auto-aggregates into derived tiers on a schedule you configure (e.g. hourly, daily, monthly). Query the tier that matches your range. No client-side aggregation, no batch jobs.',
     challenges: [
       {
         icon: '🚀',
         tone: 'red',
         title: 'Right tier for the range',
-        detail: '24h → raw `HeartRates` (288 five-min points). 7d → `HeartRates@ByHour` (168 hourly avgs). 30d → `HeartRates@ByDay` (30 daily avgs). Same endpoint, payload differs by three orders of magnitude.',
+        detail: 'Short range hits raw. Wider range hits the higher tier. Same query, payload size scales with the chart, not the history.',
       },
       {
         icon: '💰',
         tone: 'yellow',
-        title: 'Six values per rolled entry',
-        detail: 'RavenDB stores `[first, last, min, max, sum, count]` per timestamp. The endpoint projects avg = sum / count — chart-ready in one read.',
+        title: 'min/max/avg in one read',
+        detail: 'Each rolled timestamp carries first, last, min, max, sum, count. Chart-ready aggregates with no extra query.',
       },
       {
         icon: '🧹',
         tone: 'green',
         title: 'Tiered retention',
-        detail: 'Raw 30d → ByHour 30d → ByDay 6mo → ByMonth forever. The server prunes older raw points once the next tier has absorbed them.',
+        detail: 'Each tier has its own retention. Old detail expires; long-term aggregates remain.',
       },
     ],
     docsUrl:
@@ -130,27 +130,27 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
   },
   'genai-simple': {
     label: 'GenAI · simple',
-    title: 'RavenDB GenAI Task — minimal shape',
+    title: 'RavenDB GenAI Tasks (minimal)',
     description:
-      "The `auto-coach` task fires when an ExerciseSession completes. A small JS script hands the model the session doc, the model returns one sentence of structured JSON, and an UpdateScript patches `CoachNote` back onto the same doc. No tool queries, no dedup, no downstream fan-out — the bare GenAI Task shape.",
+      'Document-triggered GenAI in its simplest shape. A JS transform builds context from the document, the model returns structured JSON, an update script writes the result back. All server-side, next to the data.',
     challenges: [
       {
         icon: '📡',
         tone: 'blue',
         title: 'Doc-driven trigger',
-        detail: 'Watches ExerciseSessions; fires when EndTime transitions from null → set. Ultra-only — Free users stay $null at zero AI cost.',
+        detail: 'Fires on document mutations. The transform decides what counts as a trigger; the rest never reaches the model.',
       },
       {
         icon: '✍️',
         tone: 'green',
         title: 'One script, one write',
-        detail: 'Transformation script → model → UpdateScript. All server-side, all next to the data.',
+        detail: 'Transformation script, model call, update script. Three short pieces, all server-side.',
       },
       {
         icon: '🪶',
         tone: 'purple',
         title: 'No orchestration',
-        detail: 'Nothing else to wire. Compare this with GenAI · advanced (Daily Goals) for the layered version.',
+        detail: 'Nothing else to wire. Define the task, RavenDB runs it.',
       },
     ],
     docsUrl: 'https://docs.ravendb.net/7.2/ai-integration/gen-ai-integration/gen-ai-overview/',
@@ -158,27 +158,27 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
 
   'genai-advanced': {
     label: 'GenAI · advanced',
-    title: 'RavenDB GenAI Task — composed with the rest of the platform',
+    title: 'RavenDB GenAI Tasks (composed)',
     description:
-      "The `daily-goals` task takes the same primitive as the auto-coach and layers four more RavenDB features onto it: Document Refresh drives the cadence, registered RQL tool queries shape the model's context, `@ai-hashes` elides duplicate runs, JSON-Schema-strict structured output lands as a typed DailyGoals doc, and downstream Subscriptions watch for fulfillment. One model, five interlocking primitives.",
+      'The same GenAI Task primitive, composed with the rest of RavenDB. Document Refresh schedules it. Tool queries shape the context. `@ai-hashes` skips redundant runs. Subscriptions react to the output. One model, five primitives, one declarative task.',
     challenges: [
       {
         icon: '🎯',
         tone: 'purple',
         title: 'Multi-tool context build',
-        detail: 'Three RQL tool queries (recent exercises, today\'s kcal-intake-by-day, kcal-burned series) shape the JSON context — the model never invents data.',
+        detail: 'Multiple RQL tool queries shape the context. The model reads from the database, never invents.',
       },
       {
         icon: '🧮',
         tone: 'blue',
         title: 'Cost-aware dedup',
-        detail: '`@ai-hashes` over the context object elides the model call when nothing meaningful changed — same-day re-arms cost zero tokens.',
+        detail: "Built-in dedup. If the context hasn't meaningfully changed, the model call is skipped. Zero tokens for unchanged inputs.",
       },
       {
         icon: '✍️',
         tone: 'green',
         title: 'Strict structured output',
-        detail: 'Goals come back as a typed JSON shape with machine-evaluable predicates, written into a DailyGoals doc — Subscriptions then auto-fulfill against accumulating activity.',
+        detail: 'Output lands as typed JSON. Subscriptions can react to it like any other document write.',
       },
     ],
     docsUrl: 'https://docs.ravendb.net/7.2/ai-integration/gen-ai-integration/gen-ai-overview/',
@@ -188,79 +188,79 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Document Refresh',
     title: 'RavenDB Document Refresh',
     description:
-      "The daily-goals GenAI Task writes @metadata.@refresh on each UserProfile to schedule its next run. When the timestamp passes, RavenDB touches the document — that touch is itself a mutation, which re-fires the task. The cadence is enforced by the database, not by app code.",
+      'Schedule a document to be touched at a future time via `@refresh` metadata. The touch is a real document "mutation", so subscriptions, indexes, and ongoing tasks all react to it. No app-side timer, no cron.',
     challenges: [
       {
         icon: '⏰',
         tone: 'blue',
         title: 'No timer process',
-        detail: 'Auto-wake lives in document metadata. No background scheduler, no cron, no app-side timer to keep alive.',
+        detail: "The schedule lives in document metadata, indexed as a tree. RavenDB's built-in background task sweeps the tree. No separate background scheduler, no cron, no app-side timer.",
       },
       {
         icon: '🔁',
         tone: 'purple',
         title: 'Composes with mutations',
-        detail: 'The wake-up is just another doc mutation — subscriptions, indexes, and ongoing tasks all see it the same as any other write.',
+        detail: 'The wake-up is a normal mutation. Subscriptions, indexes, and ongoing tasks see it like any other write.',
       },
       {
         icon: '🛡️',
         tone: 'green',
-        title: 'Pairs with @ai-hashes',
-        detail: "If nothing meaningful in the context changed since the previous run, the built-in @ai-hashes dedup elides the AI call on the wake — no wasted tokens.",
+        title: 'Self-rearming',
+        detail: 'After firing, a task can rewrite `@refresh` to schedule its next run. Cadence enforcement stays in the database.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/document-extensions/document-refresh',
   },
   attachments: {
-    label: 'Attachments',
+    label: 'AI Agent Attachments',
     title: 'AI Agent Attachments',
     description:
-      'Attach a food photo to Coach and the bytes ride inside the AI Agent conversation as a vision input. The parent agent delegates to the food-photo sub-agent, which sees the image as part of its context and calls LogFoodEntry. One round-trip, no separate upload step.',
+      'Attach an image (or any bytes) directly to an AI Agent turn. The model sees it as part of its context. No separate upload endpoint, no out-of-band storage hand-off.',
     challenges: [
       {
         icon: '📎',
         tone: 'purple',
         title: 'Native multimodal',
-        detail: 'Photo bytes flow inside the conversation — the vision sub-agent reads the image as part of its context.',
+        detail: 'Bytes flow inside the conversation. The model reads them as part of its context, just like text.',
       },
       {
         icon: '🎯',
         tone: 'red',
         title: 'Inherited by sub-agents',
-        detail: "Parent attaches once; the food-photo sub-agent sees the same attachment when it's delegated to.",
+        detail: 'A parent attaches once. Sub-agents see the same attachment when delegated to.',
       },
       {
         icon: '🔁',
         tone: 'blue',
-        title: 'Composes with actions',
-        detail: 'After analysis, the sub-agent calls LogFoodEntry — bytes also land as a Remote Attachment on the new FoodEntry.',
+        title: 'Composes with tool actions',
+        detail: 'The model can analyse an attachment and immediately call a tool action on it. One round-trip from upload to write.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents',
   },
   include: {
     label: 'Include',
-    title: 'Include — no N+1',
+    title: 'Include (no N+1)',
     description:
-      'The activity list loads each exercise alongside its owning user document via a single Include() — one round trip, zero N+1 queries.',
+      'Load related documents inline with the query. One round trip, no N+1.',
     challenges: [
       {
         icon: '⚡',
         tone: 'blue',
         title: 'Single round-trip',
-        detail: 'List query + parent docs come back together.',
+        detail: 'List query and related docs come back together.',
       },
       {
         icon: '🧠',
         tone: 'purple',
         title: 'Already-warm cache',
-        detail: 'Included docs land in your session — subsequent loads are free.',
+        detail: 'Included docs land in your session. Subsequent loads are free.',
       },
       {
         icon: '💰',
         tone: 'yellow',
         title: 'No JOIN engine',
-        detail: 'Resolved on read — the database does no extra work.',
+        detail: 'Resolved on read. No join planner, no extra round trip.',
       },
     ],
     docsUrl:
@@ -271,25 +271,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Multi-Agent',
     title: 'RavenDB Multi-Agent',
     description:
-      "The parent fit-assistant agent (gpt-5-mini) orchestrates and writes prose. Three sub-agents, each with a real reason to exist — different schema, different security context, or different modality: fit-motivate (mini, premium data-digester with pattern detection), explain-workout (nano, premium data-digester), food-photo-analyzer (nano, vision). None is just a system-prompt variant of the parent.",
+      'A parent agent can delegate to specialised sub-agents. Each has its own system prompt, output schema, and tool set. The runtime threads parameters and attachments through the delegation. No app-side orchestration.',
     challenges: [
       {
         icon: '🧩',
         tone: 'purple',
         title: 'Specialised brains',
-        detail: 'Each sub-agent has its own system prompt, output schema, and tool set — no kitchen-sink prompt.',
+        detail: 'Each sub-agent has its own prompt, schema, and tools. Specialised, not a system-prompt variant.',
       },
       {
         icon: '💸',
         tone: 'yellow',
-        title: 'Cost-tiered',
-        detail: 'Vision and per-session explanation on gpt-5-nano; conversation and motivation synthesis on gpt-5-mini. One sample, two tiers.',
+        title: 'Different model per role',
+        detail: 'Each sub-agent picks its own LLM. Use cheap models for vision and digests, the heavier model for synthesis.',
       },
       {
         icon: '🔗',
         tone: 'blue',
         title: 'Native delegation',
-        detail: 'The parent declares SubAgents; RavenDB routes the delegation automatically and threads parameters through — no app-side orchestration.',
+        detail: 'The parent declares its sub-agents. RavenDB routes the delegation and threads parameters automatically.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents/multi-agents',
@@ -299,25 +299,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'AI Agent',
     title: 'RavenDB AI Agent',
     description:
-      "The Coach is a RavenDB AI Agent — defined in code, persisted in the database, and invoked with `aiOps.Conversation(agentId, conversationId, options).StreamAsync<AgentReply>()`. Conversations live in the `@conversations` collection, so the next turn resumes with full history. Tools, parameters, streaming, attachments — all wire up through the same agent primitive.",
+      'An AI Agent is a first-class database primitive. Defined once, persisted in the database, invoked as a typed conversation. Tools, parameters, streaming, sub-agents, attachments all wire up through the same agent.',
     challenges: [
       {
         icon: '🧠',
         tone: 'purple',
         title: 'Grounded in your data',
-        detail: 'Bounded RQL tool queries scope every answer to the calling user — no general-purpose hallucination surface.',
+        detail: "Bounded RQL tool queries scope every answer to the calling tenant. The model can't reach outside its registered surface.",
       },
       {
         icon: '🗂️',
         tone: 'blue',
-        title: 'Conversation = a document',
-        detail: 'Stored in `@conversations`, resumable, inspectable in Studio, expirable via `@expires`.',
+        title: 'Conversation is a document',
+        detail: 'Conversations are documents. Resumable, inspectable, expirable like any other doc.',
       },
       {
         icon: '⚡',
         tone: 'green',
         title: 'One primitive, many capabilities',
-        detail: 'Tools, sub-agents, structured output, streaming, attachments — all on the same `Conversation`.',
+        detail: 'Tools, sub-agents, structured output, streaming, attachments. All on the same primitive.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents',
@@ -327,25 +327,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Changes API',
     title: 'RavenDB Changes API',
     description:
-      "The Live Workouts strip is push-driven by the RavenDB Changes API. The backend's LiveWorkoutsStream service opens a single client-SDK subscription to changes on the ExerciseSessions collection, classifies each notification into a typed `started` / `completed` lifecycle event (by comparing the doc's EndTime-null marker against the last-seen state), and SSE-fans the result to every browser. No polling, no in-memory buffer, no time-window math.",
+      'Live stream of document changes. Subscribe in code, get notifications within milliseconds of each commit. Ideal for "right now" UIs where stale-on-reconnect is acceptable.',
     challenges: [
       {
         icon: '📡',
         tone: 'blue',
-        title: 'Real push, not poll',
-        detail: 'Browser sees deltas within milliseconds of the commit — no 6-second poll, no spin-up of a Data Subscription with replay state.',
+        title: 'Push, not poll',
+        detail: 'Deltas land within milliseconds of the commit. No poll interval, no replay-state setup.',
       },
       {
         icon: '🎯',
         tone: 'purple',
         title: 'Right tool for live UI',
-        detail: "Data Subscriptions replay from a saved cursor; Changes API drops stale state on reconnect. For 'who's training right now', a fresh REST snapshot + a live SSE stream is the honest shape.",
+        detail: 'Use it when the answer is "right now", not "since I last looked". Data Subscriptions cover the durable case; Changes API covers the ephemeral one.',
       },
       {
         icon: '🪶',
         tone: 'green',
-        title: 'Tiny backend surface',
-        detail: '~150 lines: one IObserver, one ChannelReader-per-client, one SSE controller. The classifier (null = live, set = completed) is a one-liner.',
+        title: 'Minimal wiring',
+        detail: 'One subscription, one fan-out to clients. No buffer, no replay state to manage.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/client-api/changes/what-are-changes',
@@ -355,25 +355,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Subscriptions',
     title: 'RavenDB Data Subscriptions',
     description:
-      "Four subscriptions across the app: the auto-fulfillment workers for Exercise- and Nutrition-shaped daily goals, the goal-fulfilled fan-out to friends via the activity_feed queue, and the auto-coach note on each workout. Workers consume from RavenDB on commit — no polling, no message bus needed.",
+      'Push-based change feed. Workers consume document changes as RavenDB commits them. Server-side filter, resumable cursor, sub-second latency.',
     challenges: [
       {
         icon: '📡',
         tone: 'blue',
         title: 'Push, not poll',
-        detail: 'Subscriptions emit on commit — sub-second latency to the worker.',
+        detail: 'Workers receive document changes as they commit. Sub-second latency, no poll interval to tune.',
       },
       {
         icon: '🛡️',
         tone: 'green',
         title: 'Resumable',
-        detail: 'Workers can crash and resume — RavenDB tracks acknowledged events.',
+        detail: 'Workers can crash and resume. RavenDB tracks acknowledged events.',
       },
       {
         icon: '🎯',
         tone: 'purple',
         title: 'Server-side filter',
-        detail: 'Only the events you care about — no full-table scans.',
+        detail: 'Filter at the database. Workers only see the events they asked for.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/client-api/data-subscriptions/what-are-data-subscriptions',
@@ -383,25 +383,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Map-Reduce',
     title: 'RavenDB Map-Reduce Index',
     description:
-      "Today's intake and burned totals come from two parallel map-reduce indexes: `KcalIntakeByUserDay` groups every `FoodEntry` by (user, day); `KcalBurnedByUserDay` does the same over completed `ExerciseSession` docs. One row per (user, day) — no fold at read time. Kcal lives on the document graph, not on a time series.",
+      'Aggregations declared as indexes. RavenDB folds new documents into the matching group row incrementally at write time. Reads return the rolled-up row directly. No batch job, no fold at query time.',
     challenges: [
       {
         icon: '⚡',
         tone: 'blue',
         title: 'Pre-computed at write',
-        detail: 'Each new meal / completed workout re-folds the matching day row incrementally — the index is the work, the API just reads.',
+        detail: 'Each new document folds into the matching group row. The index does the work; the query just reads.',
       },
       {
         icon: '📊',
         tone: 'purple',
-        title: 'One row per (user, day)',
-        detail: 'Dashboard tiles fetch a single row each, not N FoodEntries / N ExerciseSessions.',
+        title: 'One row per group',
+        detail: 'Reads fetch the aggregated row, not the N underlying documents.',
       },
       {
         icon: '🔁',
         tone: 'red',
         title: 'Always live',
-        detail: 'Refreshes incrementally as events stream in — zero batch jobs.',
+        detail: 'Updates incrementally as documents change. No batch job, no staleness window to plan for.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/indexes/map-reduce-indexes',
@@ -409,27 +409,27 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
 
   'queue-etl': {
     label: 'Queue ETL',
-    title: 'RavenDB Queue ETL — activity fan-out',
+    title: 'RavenDB Queue ETL',
     description:
-      "Every new ExerciseSession flows into RabbitMQ via Queue ETL. The transform script does the real work: it load()s the actor's UserProfile, walks the Follows list embedded on that doc, and emits ONE message per follower with the recipient baked into the payload. The standalone FitAssistant.FitFeed worker consumes the queue and projects each event onto the recipient's feed. Per ADR-0004.",
+      'Outbound ETL that publishes document changes to a message queue. A JS transform on the server shapes each message; one source document can fan out to many recipients. RabbitMQ, Kafka, and Azure Service Bus all supported.',
     challenges: [
       {
         icon: '🪄',
         tone: 'purple',
         title: 'Server-side fan-out',
-        detail: "The JS transform walks UserProfile.Follows and emits per-follower messages — no app-level routing layer.",
+        detail: 'The JS transform can load related documents and emit one message per recipient. Routing lives in the database, not in app code.',
       },
       {
         icon: '🧱',
         tone: 'blue',
         title: 'Genuine decoupling',
-        detail: "FitFeed runs in its own process, with its own HTTP surface and event-driven read model. Aspire dashboard shows the seam clearly.",
+        detail: "Consumers run as separate services at their own pace. The producer doesn't know who's listening.",
       },
       {
         icon: '🛡️',
         tone: 'green',
-        title: 'No audience → no publish',
-        detail: "Empty Follows list means the loop emits zero messages. Privacy modeled by the graph, not a flag.",
+        title: 'Audience-aware',
+        detail: 'If the transform finds no recipients, nothing is published. Privacy modelled in the data, not a feature flag.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/server/ongoing-tasks/etl/queue-etl/queue-etl-overview',
@@ -437,27 +437,27 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
 
   'olap-etl': {
     label: 'OLAP ETL',
-    title: 'RavenDB OLAP ETL — Parquet data lake',
+    title: 'RavenDB OLAP ETL',
     description:
-      "The Trends tab is powered by a second outbound ETL: RavenDB projects each ExerciseSession into daily-partitioned Parquet files on MinIO. Embedded DuckDB in the main backend reads those files via httpfs — analytical SQL with no warehouse, no ingest job. Same source as the activity feed; different workload, different primitive.",
+      'Outbound ETL that writes documents to columnar Parquet files in object storage. Any SQL engine that reads Parquet (DuckDB, Spark, Athena, BigQuery) can analyse the operational data without touching the OLTP store.',
     challenges: [
       {
         icon: '📦',
         tone: 'blue',
         title: 'Columnar data lake, no warehouse',
-        detail: "Parquet on S3-compatible storage. DuckDB embedded in-process queries it directly via httpfs — zero infrastructure beyond the existing MinIO container.",
+        detail: 'Writes Parquet on S3-compatible storage. Any Parquet-capable SQL engine reads it. No warehouse to provision.',
       },
       {
         icon: '✂️',
         tone: 'purple',
         title: 'Partition + column pruning',
-        detail: "Hive-style year=/month=/day= partitions plus columnar storage mean a 'this week' query touches only 7 small files and reads only the columns it needs.",
+        detail: 'Hive-style partitions plus columnar storage. Analytical queries touch only the partitions and columns they need.',
       },
       {
         icon: '🎯',
         tone: 'green',
         title: 'Right primitive per workload',
-        detail: "RavenDB owns the operational path. DuckDB owns cross-user analytical aggregations. The split is honest about which engine is best at what.",
+        detail: "OLTP stays on RavenDB. OLAP runs on the engine of your choice. Each engine does what it's good at.",
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/server/ongoing-tasks/etl/olap-etl/olap-etl-overview',
@@ -467,25 +467,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Tool Actions',
     title: 'AI Agent Tool Actions',
     description:
-      "LogFoodEntry and LogExercise are the model's write surface. The LLM produces structured output that matches the action's schema; RavenDB routes the call to a C# handler that persists the entry. The contract is the tool schema, not freeform text — there's no parser between the model and the database.",
+      "Give the model a typed write surface. The LLM emits structured output that matches the action's schema, and the runtime routes the call to your handler. No regex, no JSON parser between model and code.",
     challenges: [
       {
         icon: '✍️',
         tone: 'purple',
         title: 'Typed write surface',
-        detail: 'Action arguments are a typed schema. The C# handler receives a parsed object, not a string.',
+        detail: 'Action arguments are a typed schema. Your handler receives a parsed object, not a string.',
       },
       {
         icon: '🔁',
         tone: 'blue',
         title: 'Sub-agent passthrough',
-        detail: "The food-photo sub-agent's LogFoodEntry is routed under {subagent}/{action} — same handler, same write path.",
+        detail: 'Sub-agent tool calls route through the same handler under `{subagent}/{action}`. One implementation, many call sites.',
       },
       {
         icon: '🛡️',
         tone: 'green',
         title: 'Server-enforced contract',
-        detail: 'If the model returns malformed args, RavenDB rejects the call before the handler runs.',
+        detail: 'If the model returns malformed args, the runtime rejects the call before your handler runs.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents',
@@ -493,27 +493,27 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
 
   'tool-queries': {
     label: 'Tool Queries',
-    title: 'Bounded RQL Tool Queries (AI Agents + GenAI Tasks)',
+    title: 'Bounded RQL Tool Queries',
     description:
-      "Tool queries are fixed RQL registered alongside an AI Agent OR a GenAI Task. The LLM calls them like functions; $userId is system-bound from context (ForbidModelGeneration) and overrides anything the model tries to inject. The daily-goals GenAI Task uses three: GetRecentExercises, GetKcalBurnedRollup, GetKcalIntakeRollup — including 'select timeseries(...)' projections, which are the documented workaround for GenAI scripts not being able to load time series directly. The chat agent uses six.",
+      "Pre-registered RQL queries the model calls like functions. Parameters are bound by the runtime, not by the model, so the model can't fabricate tenant identifiers or reach data outside its scope.",
     challenges: [
       {
         icon: '🔒',
         tone: 'green',
         title: 'Tenant-bounded',
-        detail: '$userId is system-provided. The model never reaches another user, no matter what it tries.',
+        detail: "System-bound parameters are enforced by the runtime. The model can't override them.",
       },
       {
         icon: '📊',
         tone: 'purple',
-        title: 'Time-series via tools',
-        detail: "include timeseries(...) projections work because the runtime executes tool queries as a standard IndexQuery — the model pulls rollups on demand without the script knowing how.",
+        title: 'Full RQL surface',
+        detail: 'Tool queries are full RQL. Time-series projections, includes, indexes, all available to the model on demand.',
       },
       {
         icon: '⚡',
         tone: 'blue',
         title: 'No app glue',
-        detail: "RQL strings are registered with the agent/task. No app-side proxy, no per-request validation code. The model decides when to call which.",
+        detail: 'Queries are registered with the agent or task. No app-side proxy, no per-request validation. The model decides which to call.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents',
@@ -523,25 +523,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'AI Agent Parameters',
     title: 'RavenDB AI Agent Parameters',
     description:
-      "The parent agent and every sub-agent receive a single userId parameter — a string, never sent to the model, substituted into every tool query's RQL via $userId. It carries ForbidModelGeneration, so the LLM cannot fabricate or override it; the SDK refuses calls that try. The agent physically cannot reach another user's data. Sub-agents inherit the parameter from the parent's conversation, so the boundary is enforced once.",
+      "Parameters bind values into agent and sub-agent context. Marked as forbidden-to-generate, the model can't invent or override them. Sub-agents inherit the parent's parameters, so the boundary holds across delegations.",
     challenges: [
       {
         icon: '🛡️',
         tone: 'green',
         title: 'Forbid model generation',
-        detail: 'The LLM cannot invent userId — the SDK enforces it at every turn. Tenant scoping is not a prompt instruction.',
+        detail: 'The model cannot invent forbidden parameters. Tenant scoping is enforced by the runtime, not by a prompt instruction.',
       },
       {
         icon: '🔁',
         tone: 'blue',
         title: 'Inherited by sub-agents',
-        detail: 'When the parent delegates to fit-motivate / explain-workout / food-photo, the same userId parameter flows through automatically.',
+        detail: 'When the parent delegates, the same parameters flow to the sub-agent. The boundary is set once.',
       },
       {
         icon: '🎯',
         tone: 'purple',
         title: 'Tenant boundary, server-side',
-        detail: 'RQL substitution happens at registration time. The query string the model triggers is fixed; only the bound value changes.',
+        detail: 'Parameter substitution happens at the runtime. The query the model fires is fixed; only the bound value varies.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents',
@@ -549,27 +549,27 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
 
   'ai-context-hashes': {
     label: '@ai-hashes',
-    title: 'Built-in GenAI Dedup (@ai-hashes)',
+    title: 'Built-in GenAI Dedup',
     description:
-      "When a GenAI Task script calls ai.genContext({...}), RavenDB hashes the context object and stores it under @metadata.@ai-hashes[<TaskIdentifier>]. On the next run, if the hash matches the previous one, the AI call is elided — no tokens, no UpdateScript, no waste. The context IS the declarative list of 'inputs that matter'; irrelevant mutations produce an identical hash and never reach the model.",
+      'GenAI Tasks declare the inputs that matter via the context they build. RavenDB hashes that context on every trigger; if the hash matches the previous run, the model call is skipped automatically. Zero tokens for unchanged inputs.',
     challenges: [
       {
         icon: '⚡',
         tone: 'green',
         title: 'Zero-waste retriggers',
-        detail: "The daily-goals task watches UserProfile. Edit Name, Theme, or IsPremium → context unchanged → AI elided, zero tokens. Edit Weight, FitnessGoal, or DailyCalorieGoal → context differs → AI runs. The user sees the difference, not the dev.",
+        detail: "Mutations that don't change the declared context produce the same hash. The task fires, finds no work to do, costs no tokens.",
       },
       {
         icon: '🔁',
         tone: 'purple',
         title: 'Loaded docs count too',
-        detail: "The script load()s yesterday's DailyGoals doc and folds it into the context. If yesterday's fulfillment changes (e.g. user retroactively checks one off), today's hash differs at the next trigger and the AI regenerates with that knowledge. Cross-doc state participates in dedup for free.",
+        detail: 'Cross-document state in the context counts too. If a document the script loads changes, the hash differs and the model runs with the new state.',
       },
       {
         icon: '🛡️',
         tone: 'blue',
         title: 'Server-enforced',
-        detail: "Hash check lives in GenAiScriptTransformer.ProcessScriptResults — userland can't bypass it. Every GenAI Task in the database gets it for free; auto-coach benefits even though we wrote it before knowing the mechanism existed.",
+        detail: 'The hash check is part of the runtime, not opt-in. Every GenAI Task gets dedup for free.',
       },
     ],
     docsUrl: 'https://docs.ravendb.net/7.2/ai-integration/gen-ai-integration/gen-ai-overview/',
@@ -579,25 +579,25 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     label: 'Streaming',
     title: 'AI Conversation Streaming',
     description:
-      "The parent's reply streams to the chat panel token-by-token via RunAsync<T>'s field selector — RavenDB pipes the model's structured Answer field through Server-Sent Events as it generates. Sub-agent runs complete before the parent starts streaming, so the three-phase 'thinking' indicator covers the pre-stream pause.",
+      'Token-by-token streaming of structured output. The runtime streams one field of the typed reply while the rest of the structure builds in the background. Perceived latency drops from full-reply to first-word.',
     challenges: [
       {
         icon: '⚡',
         tone: 'blue',
         title: 'First-word latency',
-        detail: 'Tokens flow as the model generates — perceived latency drops from "full reply" to "first word".',
+        detail: 'Tokens flow as the model generates. Perceived latency is first-word, not full-reply.',
       },
       {
         icon: '🎯',
         tone: 'purple',
         title: 'Structured + streamed',
-        detail: 'StreamAsync<T>("Answer", ...) streams ONE field of the structured output, not raw JSON.',
+        detail: 'Stream a chosen field of the typed reply. The rest of the structure resolves alongside, server-side.',
       },
       {
         icon: '🧵',
         tone: 'green',
         title: 'Same conversation, same stream',
-        detail: 'Tool calls and sub-agent delegations resolve server-side; only the final prose tokens come down the wire.',
+        detail: 'Tool calls and sub-agent runs resolve server-side. Only the final user-visible tokens come down the wire.',
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents',
