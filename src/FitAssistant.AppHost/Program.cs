@@ -2,10 +2,10 @@ using CommunityToolkit.Aspire.Hosting.RavenDB;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var openAiApiKey = builder.AddParameter("openai-api-key", value: "", secret: true)
+var openAiApiKey = builder.AddParameter("openai-api-key", secret: true)
     .WithDescription("OpenAI API key.");
 
-var ravenLicense = builder.AddParameter("ravendb-license", value: "", secret: true)
+var ravenLicense = builder.AddParameter("ravendb-license", secret: true)
     .WithDescription("Your Developer license formatted as JSON.");
 
 var maxGlobalRequests = builder.AddParameter("max-global-requests-per-15-min", "100")
