@@ -78,6 +78,7 @@ jobs:
     env:
       Parameters__openai-api-key: ${{ secrets.OPENAI_API_KEY }}
       Parameters__ravendb-license: ${{ secrets.RAVEN_LICENSE }}
+      ASPIRE_CLI_TELEMETRY_OPTOUT: '1'
     steps:
       - uses: actions/checkout@v5
 
@@ -104,21 +105,45 @@ jobs:
           aspire run > apphost.log 2>&1 &
           APID=$!
           trap 'kill -TERM $APID 2>/dev/null || true' EXIT
-          for i in $(seq 1 60); do
-            port=$(docker ps --format "{{.Ports}}" 2>/dev/null | grep -oE "0.0.0.0:[0-9]+->8080/tcp" | grep -oE "[0-9]+" | head -1)
+          # 15 min: cold runner has to pull ravendb-nightly + rabbit + minio
+          # and build the backend image from scratch.
+          for i in $(seq 1 90); do
+            # Docker may emit either 0.0.0.0:NNN->8080/tcp or [::]:NNN->8080/tcp.
+            port=$(docker ps --format "{{.Ports}}" 2>/dev/null | grep -oE "(0\.0\.0\.0|\[::\]):[0-9]+->8080/tcp" | head -1 | grep -oE ":[0-9]+->" | grep -oE "[0-9]+")
             if [ -n "$port" ] && curl -sf "http://localhost:$port/api/ready" > /dev/null 2>&1; then
-              echo "READY on host port $port"
+              echo "READY on host port $port after $((i * 10))s"
               exit 0
+            fi
+            if [ $((i % 6)) -eq 1 ]; then
+              echo "--- t=$((i * 10))s docker ps ---"
+              docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || true
             fi
             sleep 10
           done
-          echo "::error::Stack did not become ready within 10 minutes"
+          echo "::error::Stack did not become ready within 15 minutes"
+          echo "--- final docker ps ---"
+          docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || true
+          echo "--- apphost.log tail ---"
           tail -200 apphost.log
           exit 1
 
-      - name: Upload AppHost log on failure
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: |
+          mkdir -p diagnostics/containers
+          for name in $(docker ps -a --format '{{.Names}}' 2>/dev/null); do
+            docker logs "$name" > "diagnostics/containers/$name.log" 2>&1 || true
+          done
+          if [ -d ~/.aspire/logs ]; then
+            cp -r ~/.aspire/logs diagnostics/aspire-logs || true
+          fi
+          ls -la diagnostics/ diagnostics/containers/ 2>/dev/null || true
+
+      - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: apphost-log
-          path: apphost.log
+          name: aspire-smoke-diagnostics
+          path: |
+            apphost.log
+            diagnostics/
