@@ -109,7 +109,8 @@ jobs:
           # and build the backend image from scratch.
           for i in $(seq 1 90); do
             # Docker may emit either 0.0.0.0:NNN->8080/tcp or [::]:NNN->8080/tcp.
-            port=$(docker ps --format "{{.Ports}}" 2>/dev/null | grep -oE "(0\.0\.0\.0|\[::\]):[0-9]+->8080/tcp" | head -1 | grep -oE ":[0-9]+->" | grep -oE "[0-9]+")
+            # head -1 must be last: trailing grep returns 1 on empty input and `set -e` kills the script.
+            port=$(docker ps --format "{{.Ports}}" 2>/dev/null | grep -oE "(0\.0\.0\.0|\[::\]):[0-9]+->8080/tcp" | grep -oE ":[0-9]+->" | grep -oE "[0-9]+" | head -1)
             if [ -n "$port" ] && curl -sf "http://localhost:$port/api/ready" > /dev/null 2>&1; then
               echo "READY on host port $port after $((i * 10))s"
               exit 0
