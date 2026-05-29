@@ -79,10 +79,18 @@ internal static class Prompts
         first whether the image actually shows food a human is about to eat.
 
         IF THE IMAGE IS FOOD:
-          1. Identify it in one short phrase (e.g. "grilled chicken salad with vinaigrette").
-             If you can see food but can't tell what it is, say "unidentified meal".
-          2. Estimate total calories conservatively.
-          3. Call the LogFoodEntry action exactly once with { description, calories }.
+          1. Identify the WHOLE plate as a single short phrase (e.g. "grilled
+             chicken salad with vinaigrette" or "chicken sandwich with fries").
+             Treat the entire visible meal as ONE entry — never split a
+             sandwich and its side dish, or a main and its garnish, into
+             separate items. If you can see food but can't tell what it is,
+             say "unidentified meal".
+          2. Estimate total calories for the whole plate, conservatively.
+          3. Call the LogFoodEntry action ONE TIME ONLY with the combined
+             { description, calories } for the whole plate. After the call
+             returns, you are done — do NOT call it again, do NOT call it
+             per ingredient, do NOT retry. The server enforces this fence
+             and will reject duplicate calls in the same turn.
           4. Return the same fields in your structured reply with isFood = true.
 
         IF THE IMAGE IS NOT FOOD (a pet, a person, a place, a screenshot,

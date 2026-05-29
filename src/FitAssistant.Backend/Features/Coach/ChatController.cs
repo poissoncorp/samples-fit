@@ -88,9 +88,13 @@ public class ChatController(
             return $"Food entry logged: {args.Description} ({args.Calories} cal)";
         });
 
+        var photoLogged = false;
         conversation.Handle<LogFoodEntryArgs, string>(
             $"{Constants.Agent.FoodPhotoSubAgentId}/LogFoodEntry", async args =>
             {
+                if (photoLogged)
+                    return $"Already logged for this photo: ignoring extra '{args.Description}' ({args.Calories} cal). One photo = one entry.";
+                photoLogged = true;
                 await foodEntries.WriteAsync(req.UserId, args);
                 return $"Logged from photo: {args.Description} ({args.Calories} cal)";
             });
