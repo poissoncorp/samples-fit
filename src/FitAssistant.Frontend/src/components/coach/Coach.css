@@ -268,24 +268,7 @@
   white-space: nowrap;
 }
 
-/* FeatureBadge cluster sitting next to the pending attachment chip — surfaces
-   the AI Agent Attachments + Remote Attachments features that fire when this
-   photo is sent. Tightened gap + scoped font size to claw back a few pixels
-   in this cramped corner of the UI. */
-.coach__pending-badges {
-  display: inline-flex;
-  gap: 3px;
-  margin-left: 2px;
-  flex: 0 0 auto;
-}
-.coach__pending-badges .feature-badge {
-  font-size: 10px;
-  padding: 1px 6px;
-}
-
-/* Header badge cluster — multi-agent + tool-actions + tool-queries +
-   ai-agent-parameters + streaming + attachments + remote-attachments. The
-   ribbon variant lets the 7 chips wrap on narrow widths. */
+/* Header badge cluster — the ribbon variant lets the chips wrap on narrow widths. */
 .coach__badges {
   display: inline-flex;
   gap: 4px;

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { getUsers, isMockMode } from './api';
+import { getUsers } from './api';
 import { AppShell } from './components/layout/AppShell';
 import { WelcomeScreen } from './components/onboarding/WelcomeScreen';
 import { UserSummary } from './components/layout/UserPill';
@@ -62,9 +62,6 @@ const App: React.FC = () => {
         <button type="button" className="app-bootstrap-error__retry" onClick={loadUsers}>
           Retry
         </button>
-        <p className="app-bootstrap-error__hint">
-          Tip: append <code>?mock=1</code> to the URL to preview the UI without a backend.
-        </p>
       </div>
     );
   }
@@ -79,7 +76,6 @@ const App: React.FC = () => {
       selectedUserId={selectedUserId}
       onSelectUser={handleSelectUser}
       onUserCreated={handleUserCreated}
-      isMockMode={isMockMode}
     />
   );
 };

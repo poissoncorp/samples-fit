@@ -44,9 +44,7 @@ export const LiveWorkouts: React.FC<LiveWorkoutsProps> = ({ refreshKey = 0, curr
   }, [refreshKey]);
 
   useEffect(() => {
-    const url = liveWorkoutsStreamUrl();
-    if (url.startsWith('data:')) return; // mock mode — skip SSE
-    const es = new EventSource(url);
+    const es = new EventSource(liveWorkoutsStreamUrl());
 
     es.addEventListener('hello', () => setStreamConnected(true));
 

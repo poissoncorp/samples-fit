@@ -7,7 +7,6 @@ interface TopBarProps {
   selectedUserId: string | null;
   onSelectUser: (id: string) => void;
   onUserCreated: (user: UserSummary) => void;
-  isMockMode?: boolean;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -15,7 +14,6 @@ export const TopBar: React.FC<TopBarProps> = ({
   selectedUserId,
   onSelectUser,
   onUserCreated,
-  isMockMode,
 }) => {
   return (
     <header className="topbar">
@@ -40,11 +38,6 @@ export const TopBar: React.FC<TopBarProps> = ({
             </svg>
           </div>
           <span className="topbar__title">Fit Assistant</span>
-          {isMockMode && (
-            <span className="topbar__mock" title="Mock API mode is active">
-              mock
-            </span>
-          )}
         </div>
 
         <div className="topbar__actions">

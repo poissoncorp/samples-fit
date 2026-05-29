@@ -44,18 +44,6 @@
   color: var(--text);
 }
 
-.topbar__mock {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ring-purple);
-  background: color-mix(in oklab, var(--ring-purple) 14%, transparent);
-  border: 1px solid color-mix(in oklab, var(--ring-purple) 30%, transparent);
-  padding: 2px 6px;
-  border-radius: var(--r-pill);
-}
-
 .topbar__actions {
   display: flex;
   align-items: center;
@@ -88,9 +76,6 @@
     width: 28px;
     height: 28px;
     flex-shrink: 0;
-  }
-  .topbar__mock {
-    display: none;
   }
   .topbar__actions {
     gap: 6px;

@@ -31,6 +31,7 @@ var ravenServer = builder.AddRavenDB("ravendb", serverSettings)
     .WithIconName("Database")
     .WithEnvironment("RAVEN_License_Eula_Accepted", "true")
     .WithEnvironment("RAVEN_License", ravenLicense)
+    .WithEnvironment("RAVEN_PublicServerUrl_Tcp", "tcp://ravendb.dev.internal:38889")
     .WaitFor(minio);
 
 var ravendb = ravenServer.AddDatabase("FitAssistant");

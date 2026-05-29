@@ -40,15 +40,15 @@ public partial class RavenInitializer
         await _store.Maintenance.SendAsync(new ConfigureRefreshOperation(new RefreshConfiguration
         {
             Disabled = false,
-            RefreshFrequencyInSec = 60,
+            RefreshFrequencyInSec = 10,
         }));
-        _logger.LogInformation("Document Refresh enabled (sweep every 60s).");
+        _logger.LogInformation("Document Refresh enabled (sweep every 10s).");
 
         await _store.Maintenance.SendAsync(new ConfigureExpirationOperation(new ExpirationConfiguration
         {
             Disabled = false,
-            DeleteFrequencyInSec = 60,
+            DeleteFrequencyInSec = 10,
         }));
-        _logger.LogInformation("Document Expiration enabled (sweep every 60s).");
+        _logger.LogInformation("Document Expiration enabled (sweep every 10s).");
     }
 }

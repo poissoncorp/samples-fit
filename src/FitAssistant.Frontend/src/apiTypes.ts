@@ -1,7 +1,6 @@
-// Single source of truth for response shapes shared between `api.real.ts`
-// and `api.mock.ts`. Anything the backend returns and the frontend renders
-// goes here — the impl files import these and the compiler enforces the
-// contract on both sides.
+// Single source of truth for response shapes. Anything the backend returns
+// and the frontend renders goes here — `api.ts` imports these and the
+// compiler enforces the contract.
 
 export type UserSummary = {
   id: string;
@@ -217,9 +216,8 @@ export type PipelineStats = {
 
 export type SeedResponse = { message: string };
 
-/** Shape every implementation of the API surface must satisfy. Both
- *  `api.real.ts` and `api.mock.ts` declare their exports as members of this
- *  contract — drift between them is a compile error. */
+/** Shape the API surface must satisfy — `api.ts` validates its exports
+ *  against this at compile time. */
 export interface Api {
   // Users
   getUsers(): Promise<UserSummary[]>;

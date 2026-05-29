@@ -213,9 +213,6 @@ export const Coach: React.FC<CoachProps> = ({
           <div className="coach__pending">
             <span aria-hidden="true">📎</span>
             <span className="coach__pending-name">{pendingFile.name}</span>
-            <span className="coach__pending-badges">
-              <FeatureBadge feature="attachments" size="xs" />
-            </span>
             <button
               type="button"
               className="coach__pending-x"

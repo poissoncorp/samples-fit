@@ -17,7 +17,6 @@ interface AppShellProps {
   selectedUserId: string | null;
   onSelectUser: (id: string) => void;
   onUserCreated: (user: UserSummary) => void;
-  isMockMode: boolean;
 }
 
 /**
@@ -34,7 +33,6 @@ export const AppShell: React.FC<AppShellProps> = ({
   selectedUserId,
   onSelectUser,
   onUserCreated,
-  isMockMode,
 }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
@@ -57,7 +55,6 @@ export const AppShell: React.FC<AppShellProps> = ({
         selectedUserId={selectedUserId}
         onSelectUser={onSelectUser}
         onUserCreated={onUserCreated}
-        isMockMode={isMockMode}
       />
 
       {/* Top-level tabs. Dashboard = the existing four-section layout;
