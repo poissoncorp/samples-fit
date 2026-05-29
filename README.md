@@ -6,6 +6,8 @@
 
 A sample application showing how a fitness / health domain maps onto [RavenDB](https://ravendb.net): daily AI-generated goals, an AI chat coach with photo-based food logging, real-time activity feed across friends, heart-rate time series with rollups, and a Parquet/DuckDB trends pipeline.
 
+![](.github/assets/dashboard-top.png)
+
 ## Features used
 
 The following RavenDB features power this application:
@@ -18,6 +20,10 @@ The following RavenDB features power this application:
 1. [OLAP ETL](https://docs.ravendb.net/server/ongoing-tasks/etl/olap-etl): Parquet partitions to MinIO, read by embedded DuckDB for the trends tab.
 1. [Changes API](https://docs.ravendb.net/client-api/changes/what-are-changes): the live-workouts ticker is push-driven, no polling.
 1. [Document Refresh](https://docs.ravendb.net/studio/database/settings/document-refresh) + [Expiration](https://docs.ravendb.net/studio/database/settings/document-expiration): scheduled heartbeats trigger the daily-goals task; old goal docs self-prune.
+
+![](.github/assets/dashboard-trends-coach.png)
+
+![](.github/assets/social.png)
 
 ## Technologies
 
