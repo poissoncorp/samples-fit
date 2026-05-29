@@ -112,11 +112,11 @@ export const DailyGoalsCard: React.FC<DailyGoalsCardProps> = ({ userId, refreshK
           const kindClass = kind === 'BURN' ? 'burn' : kind === 'INTAKE' ? 'intake' : 'manual';
           const kindLabel = kind === 'BURN' ? 'auto · burn' : kind === 'INTAKE' ? 'auto · intake' : 'manual';
           const isAuto = predicate !== null;
-          const autoHint = kind === 'BURN'
-            ? `Auto-fulfills when today's cumulative calories burned reach ${predicate?.amount ?? '?'} — or check manually to override`
+          const hint = kind === 'BURN'
+            ? `Auto-fulfills when today's cumulative calories burned reach ${predicate?.amount ?? '?'}.`
             : kind === 'INTAKE'
-              ? `Auto-fulfills when today's cumulative calorie intake reaches ${predicate?.amount ?? '?'} — or check manually to override`
-              : 'Tap to mark fulfilled — broadcasts to friends';
+              ? `Auto-fulfills when today's cumulative calorie intake reaches ${predicate?.amount ?? '?'}.`
+              : g.fulfilled ? 'Mark unfulfilled' : 'Tap to mark fulfilled — broadcasts to friends';
           return (
             <li
               key={i}
@@ -126,10 +126,11 @@ export const DailyGoalsCard: React.FC<DailyGoalsCardProps> = ({ userId, refreshK
                 type="button"
                 role="checkbox"
                 aria-checked={g.fulfilled}
-                className={`daily-goals-card__check ${g.fulfilled ? 'is-checked' : ''}`}
-                onClick={() => handleToggle(i, !g.fulfilled)}
-                disabled={busyIndex !== null}
-                title={g.fulfilled ? 'Mark unfulfilled' : autoHint}
+                aria-disabled={isAuto}
+                className={`daily-goals-card__check ${g.fulfilled ? 'is-checked' : ''} ${isAuto ? 'is-auto' : ''}`}
+                onClick={() => { if (!isAuto) handleToggle(i, !g.fulfilled); }}
+                disabled={isAuto || busyIndex !== null}
+                title={hint}
               >
                 {g.fulfilled ? '✓' : ''}
               </button>

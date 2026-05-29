@@ -66,22 +66,13 @@ export const PipelineWidget: React.FC<PipelineWidgetProps> = ({ users = [] }) =>
         const newest = s.recent[0]?.at ?? null;
         if (newest && newest !== lastEventRef.current) {
           if (!firstLoadRef.current) {
-            // Surface every NEW event of an interesting kind as a toast.
-            // Newer-than-lastSeen window means a burst between polls fans
-            // out into several toasts in arrival order (oldest first so the
-            // stack reads top-to-bottom newest).
             const lastSeen = lastEventRef.current;
             const fresh = lastSeen
               ? s.recent.filter(e => e.at > lastSeen)
               : s.recent.slice(0, 1);
-            fresh
-              .filter(e => TOAST_KINDS.has(e.kind))
-              .reverse()
-              .forEach(e => {
-                // Fan-out shape ("actor -> recipient | tail") reads as a
-                // FEED delivery regardless of the underlying event kind —
-                // it's the moment one user's activity reached another
-                // user's feed because that other user follows them.
+            const toToast = fresh.filter(e => TOAST_KINDS.has(e.kind));
+            if (toToast.length > 0 && toToast.length <= 5) {
+              toToast.reverse().forEach(e => {
                 const isFanout = /^(\S+)\s*->\s*(\S+)\s*\|/.test(e.summary);
                 toastRef.current.show({
                   tone: toneFor(e.kind),
@@ -91,8 +82,9 @@ export const PipelineWidget: React.FC<PipelineWidgetProps> = ({ users = [] }) =>
                   message: formatSummary(e, nameByTokenRef.current),
                 });
               });
-            setFlash(true);
-            window.setTimeout(() => setFlash(false), 1500);
+              setFlash(true);
+              window.setTimeout(() => setFlash(false), 1500);
+            }
           }
           lastEventRef.current = newest;
         }
