@@ -10,9 +10,6 @@ var ravenLicenseValue = builder.Configuration["Parameters:ravendb-license"] ?? "
 var ravenLicense = builder.AddParameter("ravendb-license", ravenLicenseValue, secret: true)
     .WithDescription("Your Developer license formatted as JSON.");
 
-Console.WriteLine($"[apphost-startup] openai-api-key resolved: {openAiKeyValue.Length} chars");
-Console.WriteLine($"[apphost-startup] ravendb-license resolved: {ravenLicenseValue.Length} chars");
-
 var maxGlobalRequests = builder.AddParameter("max-global-requests-per-15-min", "100")
     .WithDescription("Maximum API requests globally per 15 minutes");
 
