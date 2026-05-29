@@ -114,24 +114,18 @@
   cursor: not-allowed;
 }
 
-/* Locked (Free tier) Motivate Me chip — clickable but visually hinted. */
-.coach__quick-chip--locked {
-  background: color-mix(in oklab, #ffb347 6%, var(--bg-sunken));
-  border-color: color-mix(in oklab, #ffb347 25%, var(--border));
-}
-
-.coach__quick-chip--locked:hover:not(:disabled) {
-  background: color-mix(in oklab, #ffb347 12%, var(--bg-sunken));
-  border-color: color-mix(in oklab, #ffb347 50%, var(--border));
-}
-
-.coach__quick-tier {
-  font-size: 10px;
+.coach__quick-ultra {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(135deg, #ffe27a, #ffb347 60%, #ff8a4c);
+  color: #6b3a00;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  color: #b0750a;
-  margin-left: 4px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .coach__quick-icon {

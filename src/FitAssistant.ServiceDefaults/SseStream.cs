@@ -36,10 +36,6 @@ public sealed class SseStream(HttpResponse response)
 /// record; no magic strings on call sites.</summary>
 public abstract record SseEvent
 {
-    /// <summary>Null → unnamed <c>data:</c> frame (lands on EventSource.onmessage).
-    /// Non-null → <c>event: &lt;name&gt;</c> frame (lands on addEventListener).</summary>
-    public abstract string? EventName { get; }
-
-    /// <summary>JSON-serialized into the <c>data:</c> line.</summary>
+    public virtual string? EventName => null;
     public abstract object Payload { get; }
 }

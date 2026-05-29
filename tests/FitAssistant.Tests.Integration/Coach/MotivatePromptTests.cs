@@ -23,10 +23,6 @@ public sealed class MotivatePromptTests(AppHostFixture app)
 
         var userId = await TestData.CreateUser(app.BackendClient, isPremium: true);
 
-        // Motivate flow: parent → fit-motivate sub-agent → 6 RQL queries →
-        // digest → parent prose. Many round-trips per ADR-0002. The shared
-        // BackendClient's 2-minute timeout is too tight; fresh client with
-        // longer ceiling.
         using var client = new HttpClient
         {
             BaseAddress = app.BackendClient.BaseAddress,

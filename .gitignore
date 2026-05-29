@@ -421,3 +421,6 @@ FodyWeavers.xsd
 src/FitAssistant.Frontend/node_modules/
 src/FitAssistant.Frontend/build/
 src/FitAssistant.Frontend/.cache/
+
+# JetBrains IDEs (Rider / IntelliJ)
+.idea/

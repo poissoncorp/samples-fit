@@ -228,6 +228,7 @@ export async function streamChat(
   onChunk: (text: string) => void,
   onDone: () => void,
   photo?: File | null,
+  _intent?: string,
 ) {
   const intro = photo
     ? `Looked at your photo (${photo.name}). Logged: Grilled chicken salad with vinaigrette (450 cal).`

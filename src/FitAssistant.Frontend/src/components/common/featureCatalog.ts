@@ -3,7 +3,6 @@
 // component renders whatever the catalog provides.
 
 export type FeatureKey =
-  | 'ai-agent'
   | 'time-series'
   | 'rollups'
   | 'retention-policy'
@@ -12,14 +11,13 @@ export type FeatureKey =
   | 'document-refresh'
   | 'attachments'
   | 'include'
+  | 'ai-agent'
   | 'multi-agent'
-  | 'remote-attachments'
   | 'subscriptions'
   | 'changes-api'
   | 'map-reduce-index'
   | 'queue-etl'
   | 'olap-etl'
-  | 'friend-graph'
   | 'tool-actions'
   | 'tool-queries'
   | 'ai-agent-parameters'
@@ -44,33 +42,6 @@ export interface FeatureMeta {
 }
 
 export const FEATURES: Record<FeatureKey, FeatureMeta> = {
-  'ai-agent': {
-    label: 'AI Agent',
-    title: 'RavenDB AI Agent',
-    description:
-      'Coach is a RavenDB AI Agent — an LLM with first-class access to the database via tools and actions. It reads your time series and writes food/exercise entries during a single conversation.',
-    challenges: [
-      {
-        icon: '🔒',
-        tone: 'green',
-        title: 'Tenant-bounded',
-        detail: "Each tool query is fixed RQL with `$userId` substituted in — the agent physically can't reach another user's data, no matter what the LLM tries.",
-      },
-      {
-        icon: '🎯',
-        tone: 'purple',
-        title: 'Grounded',
-        detail: "Replies are based on YOUR data, not the LLM's training set.",
-      },
-      {
-        icon: '🔥',
-        tone: 'red',
-        title: 'Blazing-fast',
-        detail: 'Agent runs server-side next to the data — no app-side context shuffling.',
-      },
-    ],
-    docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents',
-  },
   'time-series': {
     label: 'Time Series',
     title: 'RavenDB Time Series',
@@ -324,32 +295,32 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents/multi-agents',
   },
 
-  'remote-attachments': {
-    label: 'Remote Attachments',
-    title: 'RavenDB Remote Attachments',
+  'ai-agent': {
+    label: 'AI Agent',
+    title: 'RavenDB AI Agent',
     description:
-      "Food photos uploaded into the chat travel to MinIO (S3-compatible) instead of consuming RavenDB storage. Application code does not change — it's a database-level switch.",
+      "The Coach is a RavenDB AI Agent — defined in code, persisted in the database, and invoked with `aiOps.Conversation(agentId, conversationId, options).StreamAsync<AgentReply>()`. Conversations live in the `@conversations` collection, so the next turn resumes with full history. Tools, parameters, streaming, attachments — all wire up through the same agent primitive.",
     challenges: [
       {
-        icon: '💰',
-        tone: 'yellow',
-        title: 'Up to 90% cheaper',
-        detail: 'Cold object storage instead of hot SSD — same API, different bytes.',
+        icon: '🧠',
+        tone: 'purple',
+        title: 'Grounded in your data',
+        detail: 'Bounded RQL tool queries scope every answer to the calling user — no general-purpose hallucination surface.',
       },
       {
-        icon: '🔁',
+        icon: '🗂️',
         tone: 'blue',
-        title: 'Same client API',
-        detail: 'session.Advanced.Attachments — the bytes location is transparent.',
+        title: 'Conversation = a document',
+        detail: 'Stored in `@conversations`, resumable, inspectable in Studio, expirable via `@expires`.',
       },
       {
         icon: '⚡',
         tone: 'green',
-        title: 'Async upload',
-        detail: 'Stored locally first, then drained to S3 on a schedule.',
+        title: 'One primitive, many capabilities',
+        detail: 'Tools, sub-agents, structured output, streaming, attachments — all on the same `Conversation`.',
       },
     ],
-    docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/server/extensions/remote-attachments',
+    docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/ai-integration/ai-agents',
   },
 
   'changes-api': {
@@ -490,28 +461,6 @@ export const FEATURES: Record<FeatureKey, FeatureMeta> = {
       },
     ],
     docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/server/ongoing-tasks/etl/olap-etl/olap-etl-overview',
-  },
-
-  'friend-graph': {
-    label: 'Friend graph',
-    title: 'Friend graph via cross-doc load()',
-    description:
-      "The Queue ETL transform reads the actor's UserProfile with load() at transform time. That single line — `var actor = load(this.UserProfileId);` — pulls the adjacency list in `UserProfile.Follows` and turns the activity feed from a passthrough into a per-follower fan-out. The graph lives next to the user in RavenDB; the resolution happens server-side.",
-    challenges: [
-      {
-        icon: '🔗',
-        tone: 'blue',
-        title: 'Cross-doc resolution',
-        detail: "load() inside the JS transform pulls related docs into the script's context with no app-side trip.",
-      },
-      {
-        icon: '🪪',
-        tone: 'purple',
-        title: 'Audience as data',
-        detail: "Who sees what is a graph in the database, not a string field on each workout. Easy to inspect in Studio.",
-      },
-    ],
-    docsUrl: 'https://ravendb.net/docs/article-page/latest/csharp/server/ongoing-tasks/etl/queue-etl/queue-etl-overview',
   },
 
   'tool-actions': {

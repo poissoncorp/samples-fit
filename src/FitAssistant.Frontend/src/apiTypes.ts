@@ -184,7 +184,7 @@ export type TrendsResponse = {
 
 export type PipelineEvent = {
   at: string;
-  kind: 'feed.deliver' | 'achievement.unlock' | 'olap.write' | 'goal.progress' | 'attachment.minio-drain' | string;
+  kind: 'feed.deliver' | 'achievement.unlock' | 'olap.write' | 'goal.progress' | string;
   summary: string;
 };
 
@@ -251,6 +251,7 @@ export interface Api {
     onChunk: (text: string) => void,
     onDone: () => void,
     photo?: File | null,
+    intent?: string,
   ): Promise<void>;
 
   // Seed

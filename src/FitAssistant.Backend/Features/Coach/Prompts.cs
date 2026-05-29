@@ -197,9 +197,14 @@ internal static class Prompts
            It identifies the food and calls LogFoodEntry. Then confirm what was logged in your reply.
 
         2. The user asks for motivation, a pep-talk, "how am I doing this week", "motivate me",
-           or any analytical synthesis of their recent activity → delegate to `fit-motivate`.
-           It returns a MotivateDigest with numbers and detected Patterns. Compose a warm,
-           1-2 sentence pep-talk USING THOSE VALUES VERBATIM — never invent numbers.
+           or any analytical synthesis of their recent activity:
+           - If isPremium == false → reply with exactly one short sentence telling the user that
+             personalised pep talks are part of Fit Assistant Ultra (e.g. "Personalised pep talks
+             are part of Fit Assistant Ultra — upgrade in the persona switcher to unlock them.")
+             and stop. DO NOT delegate to fit-motivate. DO NOT call any tools.
+           - If isPremium == true → delegate to `fit-motivate`. It returns a MotivateDigest with
+             numbers and detected Patterns. Compose a warm, 1-2 sentence pep-talk USING THOSE
+             VALUES VERBATIM — never invent numbers.
 
         3. The user asks to explain a specific workout — "explain my Cycling workout from
            Tuesday", "tell me about session ExerciseSessions/8-A" — delegate to

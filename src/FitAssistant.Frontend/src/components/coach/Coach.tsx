@@ -10,6 +10,7 @@ import './Coach.css';
 
 interface CoachProps {
   userId: string;
+  isPremium: boolean;
   onLocalRefresh: () => void;
 }
 
@@ -18,6 +19,7 @@ const newId = () => `m-${nextMsgId++}`;
 
 export const Coach: React.FC<CoachProps> = ({
   userId,
+  isPremium,
   onLocalRefresh,
 }) => {
   const [messages, setMessages] = useState<CoachMessage[]>([]);
@@ -107,9 +109,6 @@ export const Coach: React.FC<CoachProps> = ({
     }
   }, [input, pendingFile, streaming, userId, appendMessage, updateLast, onLocalRefresh]);
 
-  // Motivate Me — auto-sends a fixed prompt. The parent agent recognises
-  // the motivation ask in the prompt and delegates to the fit-motivate
-  // sub-agent on its own; no controller-side intent gate.
   const runMotivate = useCallback(async () => {
     if (streaming) return;
     setInput('');
@@ -127,6 +126,8 @@ export const Coach: React.FC<CoachProps> = ({
           setStreaming(false);
           onLocalRefresh();
         },
+        null,
+        'motivate',
       );
     } catch {
       updateLast((m) => ({ ...m, streaming: false, content: 'Could not fetch motivation.' }));
@@ -177,13 +178,13 @@ export const Coach: React.FC<CoachProps> = ({
           <div className="coach__head-text">
             <div className="coach__title">Coach</div>
             <div className="coach__badges coach__badges--ribbon">
+              <FeatureBadge feature="ai-agent" />
               <FeatureBadge feature="multi-agent" />
               <FeatureBadge feature="tool-actions" />
               <FeatureBadge feature="tool-queries" />
               <FeatureBadge feature="ai-agent-parameters" />
               <FeatureBadge feature="streaming" />
               <FeatureBadge feature="attachments" />
-              <FeatureBadge feature="remote-attachments" />
             </div>
           </div>
         </div>
@@ -202,6 +203,7 @@ export const Coach: React.FC<CoachProps> = ({
             onAnalyzePhoto={triggerPhotoPicker}
             onLogWorkout={handleLogWorkoutPrompt}
             disabled={streaming}
+            motivateLocked={!isPremium}
           />
         )}
       </div>
@@ -213,7 +215,6 @@ export const Coach: React.FC<CoachProps> = ({
             <span className="coach__pending-name">{pendingFile.name}</span>
             <span className="coach__pending-badges">
               <FeatureBadge feature="attachments" size="xs" />
-              <FeatureBadge feature="remote-attachments" size="xs" />
             </span>
             <button
               type="button"

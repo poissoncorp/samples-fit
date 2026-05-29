@@ -27,7 +27,7 @@ public class LiveWorkoutsController(IAsyncDocumentSession session, LiveWorkoutsS
         var items = live.Select(ex => new
         {
             session  = ex,
-            userName = users.TryGetValue(ex.UserProfileId, out var u) && u is not null ? u.Name : "Someone",
+            userName = users[ex.UserProfileId].Name,
         });
 
         return Ok(new { items });
@@ -59,6 +59,5 @@ public sealed record LiveWorkoutsHello : SseEvent
 
 public sealed record LiveWorkoutUpdate(string UserName, ExerciseSession Session) : SseEvent
 {
-    public override string? EventName => null;
     public override object Payload => new { userName = UserName, session = Session };
 }

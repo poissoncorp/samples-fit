@@ -2,34 +2,35 @@ using CommunityToolkit.Aspire.Hosting.RavenDB;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// OpenAI key — Aspire resolves in this order: explicit `OPENAI_API_KEY` env var,
-// `Parameters:openai-api-key` (config / user secrets / CI repo secret as
-// `Parameters__openai-api-key`), or interactive dashboard prompt on first run.
-// Backend tolerates an empty / unset key (Phase B features no-op gracefully).
-var openAiKeyFromEnv = builder.Configuration["OPENAI_API_KEY"];
-var openAiApiKey = string.IsNullOrEmpty(openAiKeyFromEnv)
-    ? builder.AddParameter("openai-api-key", secret: true)
-    : builder.AddParameter("openai-api-key", openAiKeyFromEnv, secret: true);
+var openAiApiKey = builder.AddParameter("openai-api-key", value: "", secret: true)
+    .WithDescription("OpenAI API key.");
 
-var ravenLicense = builder.Configuration["RAVEN_FIT_RAVEN_LICENSE"];
+var ravenLicense = builder.AddParameter("ravendb-license", value: "", secret: true)
+    .WithDescription("Your Developer license formatted as JSON.");
 
-// MinIO — credentials are fixed demo values. Parameter wrapping is API
-// ceremony, not a knob.
+var maxGlobalRequests = builder.AddParameter("max-global-requests-per-15-min", "100")
+    .WithDescription("Maximum API requests globally per 15 minutes");
+
+var maxSessionRequests = builder.AddParameter("max-session-requests-per-30-sec", "5")
+    .WithDescription("Maximum API requests per session per 30 seconds");
+
+var dailyGoalsCadence = builder.AddParameter("daily-goals-cadence-seconds", "86400")
+    .WithDescription("Daily-goals GenAI task cadence in seconds. 86400 = 24h (prod). Set 600 (10 min) for a fast demo loop.");
+
 var minio = builder.AddMinioContainer("minio",
     rootUser:     builder.AddParameter("minio-user", "fitadmin"),
     rootPassword: builder.AddParameter("minio-pwd",  "fitadmin123", secret: true),
     port: 9000);
 
-// RavenDB
 var serverSettings = RavenDBServerSettings.Unsecured();
 serverSettings.Port = 8081;
 serverSettings.TcpPort = 38889;
 
-if (!string.IsNullOrEmpty(ravenLicense))
-    serverSettings.WithLicense(ravenLicense);
-
 var ravenServer = builder.AddRavenDB("ravendb", serverSettings)
     .WithImage("ravendb/ravendb-nightly", "7.2-latest")
+    .WithIconName("Database")
+    .WithEnvironment("RAVEN_License_Eula_Accepted", "true")
+    .WithEnvironment("RAVEN_License", ravenLicense)
     .WaitFor(minio);
 
 var ravendb = ravenServer.AddDatabase("FitAssistant");
@@ -42,25 +43,32 @@ var fitFeed = builder.AddProject<Projects.FitAssistant_FitFeed>("fit-feed")
     .WithReference(rabbit)
     .WaitFor(rabbit);
 
-// FitAssistant backend — containerized so the URL it sees for MinIO / RabbitMQ
-// matches the URL RavenDB sees (cargo-forwarded for the S3 destinations + Queue
-// ETL connection string). Build context is the experiment root so
-// Directory.Packages.props + nuget.config are reachable.
 var backend = builder.AddDockerfile("backend", "../..", "src/FitAssistant.Backend/Dockerfile")
-    .WithReference(ravenServer)
     .WithReference(ravendb)
     .WithReference(rabbit)
     .WithReference(fitFeed)
     .WithReference(minio)
-    .WithEnvironment("OPENAI_API_KEY", openAiApiKey)
-    .WithHttpEndpoint(targetPort: 8080)
-    .WithExternalHttpEndpoints()
     .WaitFor(ravendb)
     .WaitFor(rabbit)
-    .WaitFor(minio);
+    .WaitFor(minio)
+    .WithEnvironment("OPENAI_API_KEY", openAiApiKey)
+    .WithEnvironment("FIT_ASSISTANT_MAX_GLOBAL_REQUESTS_PER_15_MINUTES", maxGlobalRequests)
+    .WithEnvironment("FIT_ASSISTANT_MAX_SESSION_REQUESTS_PER_30_SECONDS", maxSessionRequests)
+    .WithEnvironment("FitAssistant__DailyGoalsCadenceSeconds", dailyGoalsCadence)
+    .WithHttpEndpoint(targetPort: 8080)
+    .WithExternalHttpEndpoints()
+    .WithHttpCommand(
+        path: "/api/seed/all",
+        displayName: "Seed data",
+        endpointName: "http",
+        commandOptions: new HttpCommandOptions
+        {
+            Description = "Seed the database with sample data",
+            IconName = "databaseArrowUp",
+            IsHighlighted = true
+        });
+    
 
-// FitAssistant frontend — backend is now a container, so the explicit URL
-// env var below replaces the project-style WithReference(backend) wiring.
 builder.AddNpmApp("frontend", "../FitAssistant.Frontend", "start")
     .WithReference(fitFeed)
     .WaitFor(backend)

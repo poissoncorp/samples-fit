@@ -37,10 +37,6 @@ public partial class RavenInitializer : IHostedService
         await EnsureDatabaseExists();
         await WaitForDatabaseAdmin();
         await RunSetupStep(new RavenSetupStep(
-            "remote attachments",
-            ConfigureRemoteAttachmentsWithVerify,
-            (log, ex) => log.LogWarning(ex, "Remote Attachments config failed. Photos fall back to RavenDB-local storage.")));
-        await RunSetupStep(new RavenSetupStep(
             "document lifecycle",
             ConfigureDocumentLifecycleAsync,
             (log, ex) => log.LogWarning(ex, "Document Refresh / Expiration config failed.")));
@@ -111,37 +107,11 @@ public partial class RavenInitializer : IHostedService
         _logger.LogWarning("Database admin route did not stabilise after 15s. Proceeding anyway.");
     }
 
-    private async Task ConfigureRemoteAttachmentsWithVerify()
-    {
-        var serverUrl = _store.Urls[0].TrimEnd('/');
-        var routeUrl  = $"{serverUrl}/databases/{_store.Database}/admin/attachments/remote/config";
-
-        for (var attempt = 1; attempt <= 5; attempt++)
-        {
-            await ConfigureRemoteAttachments();
-
-            using var http = new HttpClient();
-            var json = await http.GetStringAsync(routeUrl);
-            if (json.Contains($"\"{Constants.RemoteAttachments.DestinationId}\""))
-            {
-                _logger.LogInformation(
-                    "Remote Attachments config verified persisted on attempt {Attempt}.", attempt);
-                return;
-            }
-
-            _logger.LogWarning(
-                "Remote Attachments config did not persist on attempt {Attempt}. Retrying in 1s.", attempt);
-            await Task.Delay(TimeSpan.FromSeconds(1));
-        }
-
-        _logger.LogError("Remote Attachments config failed to persist after 5 attempts.");
-    }
-
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     private async Task ConfigureIndexes()
     {
-        await IndexCreation.CreateIndexesAsync(typeof(KcalIntakeByUserDay).Assembly, _store);
+        await IndexCreation.CreateIndexesAsync([new KcalIntakeByUserDay(), new KcalBurnedByUserDay()], _store);
         _logger.LogInformation("Indexes created (KcalIntakeByUserDay, KcalBurnedByUserDay).");
     }
 

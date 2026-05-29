@@ -12,6 +12,10 @@ internal static class CoachAgentDefinition
         new AiAgentParameter("userId",
             "The ID of the current user profile document.",
             sendToModel: false,
+            policy: AiAgentParameterPolicy.ForbidModelGeneration),
+        new AiAgentParameter("isPremium",
+            "Whether the current user is on the Fit Assistant Ultra tier.",
+            sendToModel: true,
             policy: AiAgentParameterPolicy.ForbidModelGeneration)
     ];
 

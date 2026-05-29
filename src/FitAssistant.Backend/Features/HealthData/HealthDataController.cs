@@ -30,12 +30,12 @@ public class HealthDataController : ControllerBase
         {
             var rollups = await _session.TimeSeriesFor(
                 userId, $"{Constants.TimeSeries.HeartRates}@{rollupTier}").GetAsync(since);
-            if (rollups != null && rollups.Length > 0)
+            if (rollups is { Length: > 0 })
             {
                 return Ok(rollups.Select(e => new
                 {
                     timestamp = e.Timestamp,
-                    bpm = e.Values.Length >= 6 && e.Values[5] > 0
+                    bpm = e.Values[5] > 0
                         ? (int)Math.Round(e.Values[4] / e.Values[5])  // sum / count = avg
                         : (int)Math.Round(e.Values[0]),                // fallback: first
                 }));

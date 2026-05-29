@@ -6,18 +6,7 @@ using Xunit;
 
 namespace FitAssistant.Tests.Integration.AutoCoach;
 
-/// <summary>
-/// The <c>auto-coach</c> GenAI Task watches completed ExerciseSessions and
-/// patches <c>CoachNote</c> for Ultra users. Free users never get a note
-/// (transformation script bails before the model call).
-/// <para>
-/// Because the fixture no longer calls <c>/api/seed/all</c>, the task starts
-/// with an empty queue and processes our one logged exercise quickly — the
-/// 45s window is generous, not flaky. If it does fail, the test pulls
-/// <c>@conversations</c> trace docs (EnableTracing is on for this task) so
-/// the failure message carries the actual model exchange / script error.
-/// </para>
-/// </summary>
+
 [Collection(AppHostCollection.Name)]
 public sealed class AutoCoachTests(AppHostFixture app)
 {
@@ -54,11 +43,6 @@ public sealed class AutoCoachTests(AppHostFixture app)
         var ultraId = await TestData.CreateUser(app.BackendClient, isPremium: true);
         await TestData.LogCompletedExercise(app.BackendClient, ultraId);
 
-        // 90s window: minimal DB means no backlog, but the RavenDB GenAI
-        // Task's internal scan + LLM call still has inherent latency. The
-        // first instrumented run with a 45s window showed zero @conversations
-        // traces in that span — i.e. the task hadn't started a run yet, not
-        // that it had run and failed. 90s gives the scan a real chance.
         var note = await WaitForNote(ultraId, TimeSpan.FromSeconds(90));
 
         if (note is null)

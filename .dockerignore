@@ -1,0 +1,11 @@
+# Build context is the repo root (see AddDockerfile in AppHost / docker build .).
+# Docker only honors the .dockerignore at the context root, so it must live here.
+**/bin
+**/obj
+**/node_modules
+**/build
+**/.vs
+**/TestResults
+**/*.user
+**/appsettings.Development.json
+.git

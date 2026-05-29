@@ -113,6 +113,7 @@ export const AppShell: React.FC<AppShellProps> = ({
               <div className="app-shell__coach-slot">
                 <Coach
                   userId={selectedUserId}
+                  isPremium={users.find(u => u.id === selectedUserId)?.isPremium ?? false}
                   onLocalRefresh={handleLocalRefresh}
                 />
               </div>

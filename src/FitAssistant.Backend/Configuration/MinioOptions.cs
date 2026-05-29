@@ -1,10 +1,9 @@
 namespace FitAssistant.Backend.Configuration;
 
 /// <summary>MinIO connection settings — parsed once at startup from Aspire's
-/// <c>ConnectionStrings:minio</c> (semicolon-delimited
-/// <c>Host=...;Port=...;Username=...;Password=...</c>). Backend talks to MinIO
-/// via the container-network <see cref="Endpoint"/>; the Endpoint is also
-/// cargo-forwarded into RavenDB's S3 destinations and the OLAP ETL.</summary>
+/// <c>ConnectionStrings:minio</c> (<c>Endpoint=&lt;url&gt;;AccessKey=...;SecretKey=...</c>,
+/// the shape the Aspire Minio integration emits). The same <see cref="Endpoint"/>
+/// is cargo-forwarded into RavenDB's S3 destinations and the OLAP ETL.</summary>
 public sealed record MinioOptions(string Endpoint, string AccessKey, string SecretKey)
 {
     public static MinioOptions Parse(string connectionString)
@@ -16,8 +15,8 @@ public sealed record MinioOptions(string Endpoint, string AccessKey, string Secr
             .ToDictionary(p => p[0].Trim(), p => p[1].Trim(), StringComparer.OrdinalIgnoreCase);
 
         return new MinioOptions(
-            Endpoint:  $"http://{kv["Host"]}:{kv["Port"]}",
-            AccessKey: kv["Username"],
-            SecretKey: kv["Password"]);
+            Endpoint:  kv["Endpoint"],
+            AccessKey: kv["AccessKey"],
+            SecretKey: kv["SecretKey"]);
     }
 }

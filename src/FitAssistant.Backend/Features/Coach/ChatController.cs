@@ -1,5 +1,6 @@
 using FitAssistant.Backend.Features.ApiUsage.Application.Usage;
 using FitAssistant.Backend.Features.Coach.Models;
+using FitAssistant.Backend.Features.Users;
 using FitAssistant.Backend.Startup;
 using FitAssistant.ServiceDefaults;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,28 @@ public class ChatController(
         var sse = new SseStream(Response);
         await sse.StartAsync(HttpContext.RequestAborted);
 
+        var apiKey = Environment.GetEnvironmentVariable(Constants.EnvVars.OpenAiApiKey);
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            await sse.WriteAsync(new ChatTextMessage("AI Agent is not configured. Set the OPENAI_API_KEY environment variable to enable chat."));
+            await sse.WriteAsync(new ChatFinalUnconfigured());
+            return;
+        }
+
+        UserProfile? user;
+        using (var lookup = store.OpenAsyncSession())
+        {
+            user = await lookup.LoadAsync<UserProfile>(Constants.UserProfileId(req.UserId));
+        }
+
+        if (req.Intent == "motivate" && user?.IsPremium != true)
+        {
+            await sse.WriteAsync(new ChatTextMessage(
+                "Motivate Me is part of Fit Assistant Ultra. Upgrade in the persona switcher to unlock weekly pep talks."));
+            await sse.WriteAsync(new ChatFinalUpsell());
+            return;
+        }
+
         byte[]? photoBytes = null;
         string? photoFileName = null;
         string? photoContentType = null;
@@ -36,42 +59,47 @@ public class ChatController(
             photoContentType = photo.ContentType;
         }
 
-        var apiKey = Environment.GetEnvironmentVariable(Constants.EnvVars.OpenAiApiKey); //todo: don't get env here, either DI, or read with Aspire superpowers (Parameters, no?)
-        if (string.IsNullOrEmpty(apiKey))
-        {
-            await sse.WriteAsync(new ChatTextMessage("AI Agent is not configured. Set the OPENAI_API_KEY environment variable to enable chat."));
-            await sse.WriteAsync(new ChatFinalUnconfigured());
-            return;
-        }
-
         var sessionId = HttpContext.GetSessionId();
         var conversationId = $"conversations/{sessionId}/{req.UserId}";
-
         var aiOps = new AiOperations(store);
-        var conversation = aiOps.Conversation( //todo: why is a new conversation started every time? shouldn't we preserve them? how to handle multiple clients?
+        var conversation = aiOps.Conversation(
             Constants.Agent.Id,
             conversationId,
             new AiConversationCreationOptions
             {
                 Parameters = new Dictionary<string, AiConversationParameter>
                 {
-                    ["userId"] = new() { Value = req.UserId }
+                    ["userId"]    = new() { Value = req.UserId },
+                    ["isPremium"] = new() { Value = user?.IsPremium == true }
                 },
                 ExpirationInSec = 60 * 60 * 24
             });
 
-        // LogFoodEntry handler (both parent + sub-agent routes) — when the
-        // turn carries a photo, the bytes land as a Remote attachment on the
-        // new FoodEntry doc, draining to MinIO ~60s later.
-        conversation.WireLogFoodEntry(req.UserId, foodEntries, photoBytes, photoFileName, photoContentType);
-
+        // Register action tool handlers - log exercise and food entries
         conversation.Handle<LogExerciseArgs, string>("LogExercise", async args =>
         {
             await exerciseLog.WriteAsync(req.UserId, args);
             return $"Exercise logged: {args.Type} for {args.DurationMinutes}min ({args.CaloriesBurned} cal burned)";
         });
+        
+        conversation.Handle<LogFoodEntryArgs, string>("LogFoodEntry", async args =>
+        {
+            await foodEntries.WriteAsync(req.UserId, args);
+            return $"Food entry logged: {args.Description} ({args.Calories} cal)";
+        });
 
-        var agentStream = conversation.AttachPhotoIfPresent(photoBytes, photoFileName, photoContentType);
+        conversation.Handle<LogFoodEntryArgs, string>(
+            $"{Constants.Agent.FoodPhotoSubAgentId}/LogFoodEntry", async args =>
+            {
+                await foodEntries.WriteAsync(req.UserId, args);
+                return $"Logged from photo: {args.Description} ({args.Calories} cal)";
+            });
+        
+        
+        // Set attachment and user prompt, then run, and stream response chunks
+        if (photoBytes is not null)
+            conversation.AddAttachment(photoFileName, new MemoryStream(photoBytes),
+                photoContentType ?? "image/jpeg");
         conversation.SetUserPrompt(req.Message);
 
         try
@@ -93,10 +121,6 @@ public class ChatController(
             logger.LogError(ex, "Chat conversation failed for user {UserId}.", req.UserId);
             await sse.WriteAsync(new ChatErrorEvent("Coach encountered an error."));
         }
-        finally
-        {
-            if (agentStream != null) await agentStream.DisposeAsync();
-        }
     }
 }
 
@@ -104,18 +128,17 @@ public class ChatFormRequest
 {
     public string Message { get; set; } = "";
     public string UserId { get; set; } = "";
+    public string? Intent { get; set; }
     public IFormFile? Photo { get; set; }
 }
 
 public sealed record ChatTextMessage(string Text) : SseEvent
 {
-    public override string? EventName => null;
     public override object Payload => Text;
 }
 
 public sealed record ChatStreamChunk(string Text) : SseEvent
 {
-    public override string? EventName => null;
     public override object Payload => Text;
 }
 
@@ -129,6 +152,12 @@ public sealed record ChatFinalUnconfigured : SseEvent
 {
     public override string? EventName => "final";
     public override object Payload => new { reason = "not_configured" };
+}
+
+public sealed record ChatFinalUpsell : SseEvent
+{
+    public override string? EventName => "final";
+    public override object Payload => new { reason = "upsell_ultra" };
 }
 
 public sealed record ChatErrorEvent(string Error) : SseEvent

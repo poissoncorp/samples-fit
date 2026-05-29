@@ -10,7 +10,6 @@ const TOAST_KINDS = new Set([
   'goal.progress',
   'achievement.unlock',
   'olap.write',
-  'attachment.minio-drain',
 ]);
 
 /**
@@ -214,11 +213,10 @@ type ComponentRow = {
 };
 
 function kindLabel(kind: string): string {
-  if (kind === 'feed.deliver')           return 'feed';
-  if (kind === 'achievement.unlock')     return 'trophy';
-  if (kind === 'goal.progress')          return 'goal';
-  if (kind === 'olap.write')             return 'write';
-  if (kind === 'attachment.minio-drain') return 'attachment';
+  if (kind === 'feed.deliver')       return 'feed';
+  if (kind === 'achievement.unlock') return 'trophy';
+  if (kind === 'goal.progress')      return 'goal';
+  if (kind === 'olap.write')         return 'write';
   return kind;
 }
 
@@ -232,12 +230,11 @@ function toneFor(kind: string): 'success' | 'info' {
  *  the kind of pipeline activity at a glance. */
 function iconFor(kind: string): string {
   switch (kind) {
-    case 'feed.deliver':           return '📨';
-    case 'achievement.unlock':     return '🏆';
-    case 'goal.progress':         return '🎯';
-    case 'olap.write':             return '📊';
-    case 'attachment.minio-drain': return '☁️';
-    default:                       return 'ℹ';
+    case 'feed.deliver':       return '📨';
+    case 'achievement.unlock': return '🏆';
+    case 'goal.progress':      return '🎯';
+    case 'olap.write':         return '📊';
+    default:                   return 'ℹ';
   }
 }
 

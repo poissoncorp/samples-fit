@@ -120,10 +120,12 @@ export async function streamChat(
   onChunk: (text: string) => void,
   onDone: () => void,
   photo?: File | null,
+  intent?: string,
 ) {
   const fd = new FormData();
   fd.append('Message', message);
   fd.append('UserId', userId);
+  if (intent) fd.append('Intent', intent);
   if (photo) fd.append('Photo', photo);
 
   // Content-Type filled in by the browser (multipart boundary).

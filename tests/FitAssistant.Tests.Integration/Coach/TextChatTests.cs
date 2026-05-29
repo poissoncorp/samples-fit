@@ -13,7 +13,7 @@ public sealed class TextChatTests(AppHostFixture app)
     [Trait("phase", "A")]
     public async Task Chat_sse_emits_final_terminator_without_key()
     {
-        Skip.If(app.HasOpenAiKey, "OPENAI_API_KEY is set — covered by Phase B.");
+        Skip.If(app.HasOpenAiKey, "OPENAI_API_KEY is set");
 
         var userId = await TestData.CreateUser(app.BackendClient, isPremium: false);
         var frames = await ReadSseFrames("Hello", userId);

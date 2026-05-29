@@ -126,9 +126,12 @@ public class FanOutFulfilledGoals : BackgroundService
             // fall through to create
         }
 
-        await _store.Subscriptions.CreateAsync(
-            new SubscriptionCreationOptions<DailyGoals> { Name = Constants.Subscriptions.GoalFulfilled },
-            token: ct);
+        await _store.Subscriptions.CreateAsync<DailyGoals>(dailyGoals => dailyGoals.Goals.Any(g => g.Fulfilled),
+            new PredicateSubscriptionCreationOptions()
+            {
+                Name = Constants.Subscriptions.GoalFulfilled
+            }, token: ct);
+
         _logger.LogInformation("Subscription '{Name}' created.", Constants.Subscriptions.GoalFulfilled);
     }
 }

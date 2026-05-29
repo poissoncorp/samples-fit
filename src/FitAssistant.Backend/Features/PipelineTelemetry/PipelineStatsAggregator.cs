@@ -37,20 +37,17 @@ public class PipelineStatsAggregator(
         var etlTask          = FetchEtlStatsAsync(ct);
         var trendsMinioTask  = FetchBucketStatsAsync(Constants.Etl.TrendsBucketName,
             k => k.EndsWith(".parquet", StringComparison.OrdinalIgnoreCase), ct);
-        var attachMinioTask  = FetchBucketStatsAsync(Constants.RemoteAttachments.BucketName, _ => true, ct);
         var fitFeedTask      = FetchFitFeedAsync(ct);
 
-        await Task.WhenAll(etlTask, trendsMinioTask, attachMinioTask, fitFeedTask);
+        await Task.WhenAll(etlTask, trendsMinioTask, fitFeedTask);
 
         var etl         = etlTask.Result;
         var trendsMinio = trendsMinioTask.Result;
-        var attachMinio = attachMinioTask.Result;
         var fitFeed     = fitFeedTask.Result;
         var activityEtl = etl.GetValueOrDefault(Constants.Etl.ActivityFeedEtlName);
         var olapEtl     = etl.GetValueOrDefault(Constants.Etl.TrendsOlapEtlName);
 
         activity.NoticeOlapWrites(olapEtl.Successes);
-        activity.NoticeAttachmentDrains(attachMinio.FileCount, attachMinio.TotalBytes);
 
         var unified = activity.Snapshot()
             .Select(e => new TimelineEvent(e.At, e.Kind, e.Summary))
@@ -146,9 +143,7 @@ public class PipelineStatsAggregator(
     {
         try
         {
-            // Aspire's WithReference(fitFeed) injects the URL; the fallback covers ad-hoc `dotnet run`.
-            var url = Environment.GetEnvironmentVariable("services__fit-feed__http__0")
-                      ?? "http://localhost:5050";
+            var url = Environment.GetEnvironmentVariable("services__fit-feed__http__0"); 
             var resp = await Http.GetFromJsonAsync<FitFeedStatsResponse>($"{url.TrimEnd('/')}/api/stats", ct);
             var recent = resp?.Recent?
                 .Select(r => new TimelineEvent(r.At, r.Kind, r.Summary))
@@ -158,8 +153,6 @@ public class PipelineStatsAggregator(
         catch { return (0, Array.Empty<TimelineEvent>()); }
     }
 
-    // Wire shapes — GetFromJsonAsync uses JsonSerializerDefaults.Web (case-insensitive)
-    // so neither RavenDB's PascalCase nor FitFeed's camelCase needs an explicit name.
     private sealed class EtlStatsResponse
     {
         public List<EtlTaskStat>? Results { get; set; }

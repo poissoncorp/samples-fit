@@ -30,30 +30,24 @@ public class MinioInitializer : IHostedService
                     AuthenticationRegion = "us-east-1"
                 });
 
-            foreach (var bucket in new[]
+            var bucket = Constants.Etl.TrendsBucketName;
+            try
             {
-                Constants.RemoteAttachments.BucketName, // photo storage
-                Constants.Etl.TrendsBucketName,         // Parquet for OLAP ETL → DuckDB trends queries
-            })
+                await s3.PutBucketAsync(new PutBucketRequest { BucketName = bucket }, cancellationToken);
+                _logger.LogInformation("MinIO bucket '{Bucket}' ensured at {Url}.", bucket, _minio.Endpoint);
+            }
+            catch (AmazonS3Exception ex) when (
+                ex.ErrorCode == "BucketAlreadyOwnedByYou" ||
+                ex.ErrorCode == "BucketAlreadyExists")
             {
-                try
-                {
-                    await s3.PutBucketAsync(new PutBucketRequest { BucketName = bucket }, cancellationToken);
-                    _logger.LogInformation("MinIO bucket '{Bucket}' ensured at {Url}.", bucket, _minio.Endpoint);
-                }
-                catch (AmazonS3Exception ex) when (
-                    ex.ErrorCode == "BucketAlreadyOwnedByYou" ||
-                    ex.ErrorCode == "BucketAlreadyExists")
-                {
-                    _logger.LogInformation("MinIO bucket '{Bucket}' already exists.", bucket);
-                }
+                _logger.LogInformation("MinIO bucket '{Bucket}' already exists.", bucket);
             }
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex,
-                "Could not ensure MinIO bucket at {Url}. Remote Attachments may not work — " +
-                "verify the 'minio' container is running and reachable.", _minio.Endpoint);
+                "Could not ensure MinIO bucket at {Url}. Verify the 'minio' container is running and reachable.",
+                _minio.Endpoint);
         }
     }
 

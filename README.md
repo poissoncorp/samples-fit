@@ -33,34 +33,71 @@ The following RavenDB features power this application:
 
 ## Run locally
 
-Prerequisites:
+### Prerequisites
 
 1. [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-1. [Node.js 22.x](https://nodejs.org/en/download)
-1. [Docker](https://www.docker.com/) (Aspire orchestrates RavenDB, MinIO, RabbitMQ, and the backend image)
+1. [Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/cli/overview)
+1. [Node.js 22 or newer](https://nodejs.org/en/download)
+1. [Docker Desktop](https://www.docker.com/products/docker-desktop/) — start it before launching the app. Aspire orchestrates RavenDB, MinIO, RabbitMQ, and a containerized backend.
 
-Optional configuration:
+### First-time setup
 
-- **OpenAI key** — enables the AI chat coach, GenAI daily goals, and per-workout coach notes. On first run Aspire's dashboard will prompt for it (stored as a user secret thereafter). You can also pre-set the value as the `OPENAI_API_KEY` env var or via `Parameters__openai-api-key`. Without a key the AI features degrade gracefully (chat returns a "not configured" frame; the goals task runs but produces no output).
-- `RAVEN_FIT_RAVEN_LICENSE` — RavenDB enterprise license. Community mode works too.
-
-First-time setup — install frontend dependencies once so Aspire's `AddNpmApp` can launch the dev server:
+Install frontend dependencies once so Aspire's `AddNpmApp` can launch the dev server:
 
 ```bash
 cd src/FitAssistant.Frontend && npm install
 ```
 
-Run the full stack from repo root:
+### Run
+
+From the repo root:
 
 ```bash
-dotnet run --project src/FitAssistant.AppHost --launch-profile http
+aspire run
 ```
 
-- Aspire dashboard: <http://localhost:15178>
-- Frontend: <http://localhost:3000>
-- RavenDB Studio: <http://localhost:8081>
-- MinIO console: <http://localhost:9001> (creds `fitadmin` / `fitadmin123`)
-- Backend: containerized — see the dashboard for the host-mapped port.
+The first launch pulls ~1.5 GB of container images (RavenDB, MinIO, RabbitMQ, ASP.NET runtime) and builds the backend image — expect **2–5 minutes**. Subsequent launches take seconds.
+
+### Configure secrets (Aspire dashboard parameters)
+
+On first launch, the Aspire dashboard shows a **Parameters** tab with two secrets to set. Aspire stores your values as user secrets, so subsequent runs reuse them:
+
+| Parameter | Required? | Purpose |
+|---|---|---|
+| `openai-api-key` | Recommended | Enables the AI chat coach, GenAI daily goals, photo analysis, and the per-workout auto-coach. Without it, AI features degrade gracefully (chat returns a "not configured" frame; the goals task runs but produces no output). |
+| `ravendb-license` | Optional | Paste your RavenDB developer/enterprise license JSON to unlock time-series rollups + retention policies. Leave blank for community mode (everything still works; rollup tiers are skipped). |
+
+The two MinIO parameters (`minio-user` / `minio-pwd`) are pre-filled demo values — no need to touch them.
+
+For non-interactive runs (CI, scripts) set the values via env vars instead:
+```bash
+Parameters__openai-api-key=sk-...
+Parameters__ravendb-license="{...}"
+```
+
+### Endpoints (after launch)
+
+| Service | URL | Notes |
+|---|---|---|
+| Frontend | <http://localhost:3000> | Click "Seed sample data" on first visit |
+| Aspire dashboard | <http://localhost:15178> | Login token printed in the launching terminal |
+| RavenDB Studio | <http://localhost:8081> | Inspect documents, indexes, time series, subscriptions |
+| MinIO console | <http://localhost:9001> | Credentials `fitadmin` / `fitadmin123` |
+| Backend | Container | Host port is dynamic — see the Aspire dashboard |
+
+### Troubleshooting
+
+- **"Docker daemon not responding"** when launching `aspire run` — start Docker Desktop and wait for "Docker Desktop is running" before retrying.
+- **Port already in use** on `:15178` / `:3000` / `:8081` — a previous AppHost is still alive. `taskkill /F /IM FitAssistant.AppHost.exe` (Windows) or kill the orphan `dotnet` process (macOS/Linux), then relaunch.
+- **`npm install` failed in `FitAssistant.Frontend`** — delete `node_modules` and `package-lock.json` and rerun on Node 22+.
+- **DCP unix-socket warning on AppHost startup (Windows)** — harmless; Aspire continues normally.
+
+### Dev-mode preview without backend
+
+The frontend can render fully against an in-browser mock for design / preview work:
+
+- `http://localhost:3000/?mock=1` — synthetic personas, charts, live feed; no backend required.
+- `http://localhost:3000/?empty=1` — boots the welcome flow even when seeded.
 
 ## Community & Support
 

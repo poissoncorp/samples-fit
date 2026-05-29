@@ -57,7 +57,7 @@ public class SimulateController : ControllerBase
     [HttpPost("exercise/{exerciseId}/extend")]
     public async Task<IActionResult> ExtendActiveExercise(string exerciseId, [FromQuery] int minutes = 20)
     {
-        var message = await _sim.ExtendActiveExerciseAsync(exerciseId, minutes);
+        var message = await _sim.ExtendActiveExerciseAsync(Uri.UnescapeDataString(exerciseId), minutes);
         return message is null
             ? NotFound(new { error = "Exercise not found." })
             : Ok(new { message });
@@ -66,7 +66,7 @@ public class SimulateController : ControllerBase
     [HttpPost("exercise/{exerciseId}/finish")]
     public async Task<IActionResult> FinishActiveExercise(string exerciseId)
     {
-        var message = await _sim.FinishActiveExerciseAsync(exerciseId);
+        var message = await _sim.FinishActiveExerciseAsync(Uri.UnescapeDataString(exerciseId));
         return message is null
             ? NotFound(new { error = "Exercise not found." })
             : Ok(new { message });

@@ -52,3 +52,73 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  tests:
+    runs-on: ubuntu-latest
+    needs: backend
+    env:
+      Parameters__openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+      Parameters__ravendb-license: ${{ secrets.RAVEN_LICENSE }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore FitAssistant.slnx
+
+      - name: Run integration tests
+        run: dotnet test tests/FitAssistant.Tests.Integration/FitAssistant.Tests.Integration.csproj --configuration Release --no-restore --logger "console;verbosity=normal"
+
+  aspire-smoke:
+    runs-on: ubuntu-latest
+    needs: backend
+    env:
+      Parameters__openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+      Parameters__ravendb-license: ${{ secrets.RAVEN_LICENSE }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: src/FitAssistant.Frontend/package-lock.json
+
+      - name: Install frontend deps
+        working-directory: src/FitAssistant.Frontend
+        run: npm ci
+
+      - name: Install Aspire CLI
+        run: dotnet tool install -g Aspire.Cli
+
+      - name: aspire run + readiness probe
+        run: |
+          set -e
+          aspire run > apphost.log 2>&1 &
+          APID=$!
+          trap 'kill -TERM $APID 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do
+            port=$(docker ps --format "{{.Ports}}" 2>/dev/null | grep -oE "0.0.0.0:[0-9]+->8080/tcp" | grep -oE "[0-9]+" | head -1)
+            if [ -n "$port" ] && curl -sf "http://localhost:$port/api/ready" > /dev/null 2>&1; then
+              echo "READY on host port $port"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Stack did not become ready within 10 minutes"
+          tail -200 apphost.log
+          exit 1
+
+      - name: Upload AppHost log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apphost-log
+          path: apphost.log

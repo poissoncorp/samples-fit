@@ -41,14 +41,14 @@ app.MapGet("/api/stats", (PipelineEventBuffer events) =>
 
 app.MapGet("/api/feed/{userId}", async (string userId, int? limit, FeedStore store) =>
 {
-    var normalized = userId.Contains('/') ? userId : $"UserProfiles/{userId}";
+    var normalized = NormalizeUserId(userId);
     var items = await store.GetFeedAsync(normalized, limit ?? 50);
     return Results.Json(new { userId = normalized, items }, jsonOpts);
 });
 
 app.MapGet("/api/achievements/{userId}", async (string userId, FeedStore store) =>
 {
-    var normalized = userId.Contains('/') ? userId : $"UserProfiles/{userId}";
+    var normalized = NormalizeUserId(userId);
     var state = await store.GetAchievementsAsync(normalized);
     return Results.Json(new
     {
@@ -63,7 +63,7 @@ app.MapGet("/api/achievements/{userId}", async (string userId, FeedStore store) 
 
 app.MapGet("/feed/{userId}/live", async (string userId, FeedStore store, HttpContext http, CancellationToken ct) =>
 {
-    var normalized = userId.Contains('/') ? userId : $"UserProfiles/{userId}";
+    var normalized = NormalizeUserId(userId);
 
     var sse = new SseStream(http.Response);
     await sse.StartAsync(ct);
@@ -85,10 +85,15 @@ app.MapGet("/feed/{userId}/live", async (string userId, FeedStore store, HttpCon
     }
 });
 
+static string NormalizeUserId(string userId)
+{
+    userId = Uri.UnescapeDataString(userId);
+    return userId.Contains('/') ? userId : $"UserProfiles/{userId}";
+}
+
 app.Run();
 
 public sealed record FeedItemDelivered(FeedItem Item) : SseEvent
 {
-    public override string? EventName => null;
     public override object Payload => Item;
 }
